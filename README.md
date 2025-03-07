@@ -40,10 +40,6 @@ Stretch Features (if time allows):
 - [Barcode scanner module ($42)](https://www.amazon.com/dp/B07P3GD3XV?ref=ppx_yo2ov_dt_b_fed_asin_title)
 - [Open Source Bluetooth kitchen scale ($89)](https://decentespresso.com/decentscale)
 - [Raspberry Pi Camera (any / $14)](https://www.amazon.com/dp/B01ER2SKFS?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_1_)
-- [7" Raspberry Pi Touch Screen ($69)](https://www.amazon.com/dp/B07VNX4ZWY?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_9&th=1)
 - [Raspberry Pi 4 8gb (recommended, any raspberry pi 4 or 5 will likely work)($84)](https://www.amazon.com/Raspberry-Pi-Computer-Suitable-Workstation/dp/B0899VXM8F)
-- Optional (but recommended):
-  - [Touch screen and main body chassis ($44)](https://www.amazon.com/dp/B0DJ5ST5LK?ref=ppx_yo2ov_dt_b_fed_asin_title&th=1)
-  - A mount for the barcode scanner, seperate from the chassis
-- Total cost:
-- $347
+- Touch Screen (any):
+  - [7" or 10" ROADCOM Touchscreen with case ($79.99)](https://www.amazon.com/ROADOM-Raspberry-Responsive-Compatible-Versatile/dp/B0CJNHY3X3?crid=2GB5T80V5TO4X&th=1)
