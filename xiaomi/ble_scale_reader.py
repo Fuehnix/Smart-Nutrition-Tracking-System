@@ -1,14 +1,20 @@
 import asyncio
 from bleak import BleakClient
 
-ADDRESS = "5C:CA:D3:6F:25:2D"  # body scale MAC address
+ADDRESS = "5C:CA:D3:6F:25:2D"  # body scale BLE address
+WEIGHT_CHAR_UUID = "00002a9b-0000-1000-8000-00805f9b34fb"  # weight data UUID
 
-async def discover_services():
+async def read_weight():
     async with BleakClient(ADDRESS) as client:
-        services = await client.get_services()
-        for service in services:
-            print(f"service: {service.uuid}")
-            for char in service.characteristics:
-                print(f"characteristics: {char.uuid} (handle: 0x{char.handle:X})")
+        if not await client.is_connected():
+            print("Fail to connect to body scale!")
+            return
+        
+        print("Success to connect to body scale!")
+        weight_data = await client.read_gatt_char(WEIGHT_CHAR_UUID)
+        
+        # Interprete the weight data
+        weight = int.from_bytes(weight_data[:2], byteorder="little") / 200.0  # little endian
+        print(f"Weight: {weight} kg")
 
-asyncio.run(discover_services())
+asyncio.run(read_weight())
