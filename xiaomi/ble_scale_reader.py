@@ -1,11 +1,14 @@
 import asyncio
-from bleak import BleakScanner
+from bleak import BleakClient
 
-async def scan():
-    print("Scanning for BLE devices...")
-    devices = await BleakScanner.discover()
-    for device in devices:
-        print(f"Device: {device.name}, Address: {device.address}")
+ADDRESS = "5C:CA:D3:6F:25:2D"  # body scale MAC address
 
-asyncio.run(scan())
+async def discover_services():
+    async with BleakClient(ADDRESS) as client:
+        services = await client.get_services()
+        for service in services:
+            print(f"service: {service.uuid}")
+            for char in service.characteristics:
+                print(f"characteristics: {char.uuid} (handle: 0x{char.handle:X})")
 
+asyncio.run(discover_services())
