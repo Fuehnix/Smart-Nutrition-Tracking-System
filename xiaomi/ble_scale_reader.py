@@ -9,7 +9,7 @@ async def read_weight():
         print("Connected to scale. Discovering services...")
 
         try:
-            services = client.services  
+            services = await client.get_services()
             for service in services:
                 if service.uuid == SERVICE_UUID:
                     for char in service.characteristics:
@@ -18,19 +18,25 @@ async def read_weight():
                             data = await client.read_gatt_char(char.uuid)
                             print(f"Raw Data: {data.hex()}")
 
-                            if len(data) >= 10:
-                                measured = int(data[8:10].hex() + data[6:8].hex(), 16) * 0.01
-                                measunit = data[4]  
-
-                                if measunit == 3:
-                                    unit = "lbs"
-                                elif measunit == 2:
-                                    unit = "kg"
-                                    measured /= 2  
-
-                                print(f"Weight: {measured:.2f} {unit}")
-                            else:
+                            if len(data) < 10:
                                 print("Invalid data received from scale.")
+                                return
+
+                            # Extract weight
+                            measured = int.from_bytes(data[6:8], byteorder="little") * 0.01
+                            measunit = data[4]
+
+                            # Determine unit
+                            if measunit == 0x03:
+                                unit = "lbs"
+                            elif measunit == 0x02:
+                                unit = "kg"
+                                measured /= 2  
+                            else:
+                                print("Unknown measurement unit.")
+                                return
+
+                            print(f"Weight: {measured:.2f} {unit}")
         except Exception as e:
             print(f"Error: {e}")
 
