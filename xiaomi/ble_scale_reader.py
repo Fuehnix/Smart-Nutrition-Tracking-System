@@ -10,19 +10,28 @@ WEIGHT_CHARACTERISTIC_UUID = "00002a9c-0000-1000-8000-00805f9b34fb"
 
 async def read_weight():
     async with BleakClient(SCALE_MAC_ADDRESS) as client:
-        print("Connected to the scale. Reading data...")
+        print("Connected to the scale. Discovering services...")
 
         try:
+            services = client.services
+            for service in services:
+                print(f"Service: {service.uuid}")
+                for char in service.characteristics:
+                    print(f"  Characteristic: {char.uuid}")
+
+            print(f"Reading data from {WEIGHT_CHARACTERISTIC_UUID}...")
             data = await client.read_gatt_char(WEIGHT_CHARACTERISTIC_UUID)
+            print(f"Raw data: {data.hex()}")
+
             if data:
                 raw_weight = int.from_bytes(data[1:3], byteorder="little")
-                unit = (data[0] & 0b01)  # Extract unit bit (0: kg, 1: lbs)
-                
+                unit = data[0] & 0b01  
+
                 if unit == 0:
-                    weight = raw_weight / 100  # Xiaomi scales often use a 100 factor
+                    weight = raw_weight / 100  
                     print(f"Weight: {weight:.2f} kg")
                 else:
-                    weight = raw_weight / 100 * 2.20462  # Convert to lbs if needed
+                    weight = raw_weight / 100 * 2.20462  
                     print(f"Weight: {weight:.2f} lbs")
             else:
                 print("Failed to read weight data.")
