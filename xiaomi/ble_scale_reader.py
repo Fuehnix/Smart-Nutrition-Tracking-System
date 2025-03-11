@@ -1,41 +1,32 @@
 import asyncio
 from bleak import BleakClient
 
-# Xiaomi scale MAC address (Replace with actual)
-SCALE_MAC_ADDRESS = "5C:CA:D3:6F:25:2D"
+SCALE_MAC_ADDRESS = "5C:CA:D3:6F:25:2D"  # Replace with the actual MAC address
 
-# Xiaomi scale service and characteristic UUIDs
 SERVICE_UUID = "0000181b-0000-1000-8000-00805f9b34fb"
 WEIGHT_CHARACTERISTIC_UUID = "00002a9c-0000-1000-8000-00805f9b34fb"
 
 async def read_weight():
     async with BleakClient(SCALE_MAC_ADDRESS) as client:
-        print("Connected to the scale. Discovering services...")
+        print("Connected to scale. Discovering services...")
 
         try:
-            services = client.services
-            for service in services:
-                print(f"Service: {service.uuid}")
-                for char in service.characteristics:
-                    print(f"  Characteristic: {char.uuid}")
-
             print(f"Reading data from {WEIGHT_CHARACTERISTIC_UUID}...")
             data = await client.read_gatt_char(WEIGHT_CHARACTERISTIC_UUID)
-            print(f"Raw data: {data.hex()}")
+            print(f"Raw Data: {data.hex()}")
 
             if data:
-                raw_weight = int.from_bytes(data[2:4], byteorder="little")  # Adjusted index
-                unit = data[0] & 0b01  
+                # Correct byte parsing
+                raw_weight = int.from_bytes(data[1:3], byteorder="little") / 100
+                unit_flag = data[0] & 0b01  # 0: kg, 1: lbs
 
-                if unit == 0:
-                    weight = raw_weight / 200  # Adjusted divisor based on known Xiaomi format
-                    print(f"Weight: {weight:.2f} kg")
+                if unit_flag == 0:
+                    print(f"Weight: {raw_weight:.2f} kg")
                 else:
-                    weight = raw_weight / 200 * 2.20462  
-                    print(f"Weight: {weight:.2f} lbs")
+                    print(f"Weight: {raw_weight * 2.20462:.2f} lbs")
             else:
                 print("Failed to read weight data.")
         except Exception as e:
-            print(f"Error reading data: {e}")
+            print(f"Error: {e}")
 
 asyncio.run(read_weight())
