@@ -2,29 +2,38 @@ import asyncio
 from bleak import BleakClient
 
 SCALE_MAC_ADDRESS = "5C:CA:D3:6F:25:2D"  # Replace with actual MAC address
-
 SERVICE_UUID = "0000181b-0000-1000-8000-00805f9b34fb"
-WEIGHT_CHARACTERISTIC_UUID = "00002a9c-0000-1000-8000-00805f9b34fb"
 
 async def read_weight():
     async with BleakClient(SCALE_MAC_ADDRESS) as client:
         print("Connected to scale. Discovering services...")
 
         try:
-            print(f"Reading data from {WEIGHT_CHARACTERISTIC_UUID}...")
-            data = await client.read_gatt_char(WEIGHT_CHARACTERISTIC_UUID)
-            print(f"Raw Data: {data.hex()}")
+            services = await client.get_services()
+            for service in services:
+                if service.uuid == SERVICE_UUID:
+                    for char in service.characteristics:
+                        if "read" in char.properties:
+                            print(f"Reading data from {char.uuid}...")
+                            data = await client.read_gatt_char(char.uuid)
+                            print(f"Raw Data: {data.hex()}")
 
-            if data:
-                raw_weight = int.from_bytes(data[1:3], byteorder="little") / 200  # Adjusted scaling factor
-                unit_flag = data[0] & 0b01  # 0: kg, 1: lbs
+                            if len(data) >= 30:
+                                # Extract weight
+                                measured = int(data[28:30].hex() + data[26:28].hex(), 16) * 0.01
 
-                if unit_flag == 0:
-                    print(f"Weight: {raw_weight:.2f} kg")
-                else:
-                    print(f"Weight: {raw_weight * 2.20462:.2f} lbs")
-            else:
-                print("Failed to read weight data.")
+                                # Extract measurement unit
+                                measunit = data[4:6].hex()  # Convert to hex string
+
+                                if measunit == "03":
+                                    unit = "lbs"
+                                elif measunit == "02":
+                                    unit = "kg"
+                                    measured /= 2  # Convert to correct kg value
+
+                                print(f"Weight: {measured:.2f} {unit}")
+                            else:
+                                print("Invalid data received from scale.")
         except Exception as e:
             print(f"Error: {e}")
 
