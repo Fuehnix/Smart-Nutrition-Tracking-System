@@ -10,19 +10,16 @@ WEIGHT_CHARACTERISTIC_UUID = "00002a9c-0000-1000-8000-00805f9b34fb"
 
 async def read_weight():
     async with BleakClient(SCALE_MAC_ADDRESS) as client:
-        if not await client.connect():
-            print("Failed to connect to the scale.")
-            return
-        
-        print("Connected to the scale. Checking services...")
+        print("Connected to the scale. Discovering services...")
 
-        # Ensure the scale has the expected service
+        # Ensure the service exists
         services = await client.get_services()
-        if SERVICE_UUID not in [service.uuid for service in services]:
-            print("Expected service not found on the device.")
+        service = services.get_service(SERVICE_UUID)
+        if not service:
+            print(f"Service {SERVICE_UUID} not found.")
             return
 
-        print("Service found. Reading weight data...")
+        print(f"Service {SERVICE_UUID} found. Reading data...")
 
         try:
             data = await client.read_gatt_char(WEIGHT_CHARACTERISTIC_UUID)
