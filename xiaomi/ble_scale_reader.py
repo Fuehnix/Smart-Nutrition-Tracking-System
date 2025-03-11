@@ -1,7 +1,7 @@
 import asyncio
 from bleak import BleakClient
 
-# Xiaomi scale MAC address
+# Xiaomi scale MAC address (Replace with actual)
 SCALE_MAC_ADDRESS = "5C:CA:D3:6F:25:2D"
 
 # Xiaomi scale service and characteristic UUIDs
@@ -24,14 +24,14 @@ async def read_weight():
             print(f"Raw data: {data.hex()}")
 
             if data:
-                raw_weight = int.from_bytes(data[1:3], byteorder="little")
+                raw_weight = int.from_bytes(data[2:4], byteorder="little")  # Adjusted index
                 unit = data[0] & 0b01  
 
                 if unit == 0:
-                    weight = raw_weight / 100  
+                    weight = raw_weight / 200  # Adjusted divisor based on known Xiaomi format
                     print(f"Weight: {weight:.2f} kg")
                 else:
-                    weight = raw_weight / 100 * 2.20462  
+                    weight = raw_weight / 200 * 2.20462  
                     print(f"Weight: {weight:.2f} lbs")
             else:
                 print("Failed to read weight data.")
