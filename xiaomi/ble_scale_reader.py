@@ -3,8 +3,6 @@ import logging
 import binascii
 from bleak import BleakClient
 
-logging.basicConfig(level=logging.DEBUG)
-
 SCALE_MAC_ADDRESS = "5C:CA:D3:6F:25:2D"  
 WEIGHT_CHARACTERISTIC_UUID = "00002a9c-0000-1000-8000-00805f9b34fb"
 
