@@ -36,6 +36,12 @@ async def read_weight():
     async with BleakClient(SCALE_MAC_ADDRESS) as client:
         try:
             print("Connecting to scale...")
+
+            if client.is_connected:
+                print("Already connected. Disconnecting first...")
+                await client.disconnect()
+                await asyncio.sleep(1)
+
             await client.connect()
 
             if not client.is_connected:
@@ -58,7 +64,8 @@ async def read_weight():
         except Exception as e:
             print(f"Error: {e}")
         finally:
-            await client.disconnect()
+            if client.is_connected:
+                await client.disconnect()
             print("Disconnected from scale")
 
 asyncio.run(read_weight())
