@@ -37,12 +37,7 @@ async def read_weight():
         try:
             print("Connecting to scale...")
 
-            if client.is_connected:
-                print("Already connected. Disconnecting first...")
-                await client.disconnect()
-                await asyncio.sleep(1)
-
-            await client.connect()
+            await client.connect()  # 무조건 연결 시도
 
             if not client.is_connected:
                 print("Failed to connect!")
