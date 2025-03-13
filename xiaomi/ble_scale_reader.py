@@ -17,14 +17,14 @@ def parse_mi_scale_data(sender, data):
         hasImpedance = ctrlByte1 & (1 << 1)
 
         measunit = hex_data[0:2]
-        measured = int((hex_data[12:14] + hex_data[10:12]), 16) * 0.01
+        measured = int((hex_data[10:12] + hex_data[12:14]), 16) * 0.01
 
         unit = ''
         if measunit == "03":
             unit = 'lbs'
         elif measunit == "02":
             unit = 'kg'
-            measured = measured / 2
+            measured = measured 
 
         miimpedance = int((hex_data[8:10] + hex_data[6:8]), 16)
 
