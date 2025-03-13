@@ -10,10 +10,8 @@ async def read_weight():
         print("Connected to scale. Discovering services...")
 
         try:
-            await client.connect()
             if not client.is_connected:
-                print("Failed to connect to scale")
-                return
+                await client.connect()
             
             print("Connected to scale. Discovering services...")
 
