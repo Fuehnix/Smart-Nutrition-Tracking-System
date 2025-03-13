@@ -1,55 +1,53 @@
 import asyncio
+import logging
+import binascii
 from bleak import BleakClient
+
+logging.basicConfig(level=logging.DEBUG)
 
 SCALE_MAC_ADDRESS = "5C:CA:D3:6F:25:2D"  
 WEIGHT_CHARACTERISTIC_UUID = "00002a9c-0000-1000-8000-00805f9b34fb"
 
-def weight_measurement_callback(sender, data):
-    """ Weight Measurement Data Processing """
-    hex_data = data.hex()
-    print(f"[Notification] {sender} -> Raw Data: {hex_data}")
-
-    if len(data) >= 10:
-        measured = int.from_bytes(data[6:8], byteorder="little") * 0.01
-        measunit = data[4]
-
-        if measunit == 0x03:
-            unit = "lbs"
-        elif measunit == 0x02:
-            unit = "kg"
-            measured /= 2  # 
-        else:
-            print("  Unknown measurement unit.")
-            return
-
-        print(f"  Weight: {measured:.2f} {unit}")
-    else:
-        print("  Invalid weight data received.")
+def parse_mi_scale_data(sender, data):
+    try:
+        hex_data = data.hex()
+        logging.debug(f"[Notification] {sender} -> Raw Data: {hex_data}")
+        
+        data2 = bytes.fromhex(hex_data)
+        ctrlByte1 = data2[1]
+        isStabilized = ctrlByte1 & (1 << 5)
+        hasImpedance = ctrlByte1 & (1 << 1)
+        
+        measunit = hex_data[0:2]
+        measured = int((hex_data[12:14] + hex_data[10:12]), 16) * 0.01
+        
+        unit = ''
+        if measunit == "03":
+            unit = 'lbs'
+        elif measunit == "02":
+            unit = 'kg'
+            measured = measured / 2
+        
+        miimpedance = int((hex_data[8:10] + hex_data[6:8]), 16)
+        
+        logging.info(f"Weight: {measured} {unit}, Stabilized: {bool(isStabilized)}, Impedance: {miimpedance if hasImpedance else 'N/A'}")
+    except Exception as e:
+        logging.error(f"Error parsing data: {e}")
 
 async def read_weight():
     async with BleakClient(SCALE_MAC_ADDRESS) as client:
-        print("Connected to scale. Discovering services...")
-
         try:
             if not client.is_connected:
                 await client.connect()
-
-            print("Connected. Enabling weight measurement notifications...")
-
-            # Weight Measurement (00002a9c) 
-            await client.start_notify(WEIGHT_CHARACTERISTIC_UUID, weight_measurement_callback)
-
-            # wait for 10 seconds
+            logging.info("Connected to scale. Enabling notifications...")
+            
+            await client.start_notify(WEIGHT_CHARACTERISTIC_UUID, parse_mi_scale_data)
             await asyncio.sleep(10)
-
-            # 
             await client.stop_notify(WEIGHT_CHARACTERISTIC_UUID)
-
         except Exception as e:
-            print(f"Error: {e}")
-
+            logging.error(f"Error: {e}")
         finally:
             await client.disconnect()
-            print("Disconnected from scale")
+            logging.info("Disconnected from scale")
 
 asyncio.run(read_weight())
