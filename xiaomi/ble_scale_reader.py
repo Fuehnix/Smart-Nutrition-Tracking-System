@@ -11,7 +11,7 @@ WEIGHT_CHARACTERISTIC_UUID = "00002a9c-0000-1000-8000-00805f9b34fb"
 def parse_mi_scale_data(sender, data):
     try:
         hex_data = data.hex()
-        logging.debug(f"[Notification] {sender} -> Raw Data: {hex_data}")
+        print(f"[Notification] {sender} -> Raw Data: {hex_data}")
         
         data2 = bytes.fromhex(hex_data)
         ctrlByte1 = data2[1]
@@ -30,24 +30,24 @@ def parse_mi_scale_data(sender, data):
         
         miimpedance = int((hex_data[8:10] + hex_data[6:8]), 16)
         
-        logging.info(f"Weight: {measured} {unit}, Stabilized: {bool(isStabilized)}, Impedance: {miimpedance if hasImpedance else 'N/A'}")
+        print(f"Weight: {measured} {unit}, Stabilized: {bool(isStabilized)}, Impedance: {miimpedance if hasImpedance else 'N/A'}")
     except Exception as e:
-        logging.error(f"Error parsing data: {e}")
+        print(f"Error parsing data: {e}")
 
 async def read_weight():
     async with BleakClient(SCALE_MAC_ADDRESS) as client:
         try:
             if not client.is_connected:
                 await client.connect()
-            logging.info("Connected to scale. Enabling notifications...")
+            print("Connected to scale. Enabling notifications...")
             
             await client.start_notify(WEIGHT_CHARACTERISTIC_UUID, parse_mi_scale_data)
             await asyncio.sleep(10)
             await client.stop_notify(WEIGHT_CHARACTERISTIC_UUID)
         except Exception as e:
-            logging.error(f"Error: {e}")
+            print(f"Error: {e}")
         finally:
             await client.disconnect()
-            logging.info("Disconnected from scale")
+            print("Disconnected from scale")
 
 asyncio.run(read_weight())
