@@ -16,6 +16,12 @@ def parse_mi_scale_data(sender, data):
         isStabilized = ctrlByte1 & (1 << 5)
         hasImpedance = ctrlByte1 & (1 << 1)
 
+        year = int.from_bytes(data2[2:4], byteorder="little")
+        month = data2[4]
+        day = data2[5]
+        date_str = f"{year}-{month:02d}-{day:02d}"
+
+
         weight_raw = int.from_bytes(data2[6:8], byteorder="little")
         measured = weight_raw * 0.1 
 
@@ -28,7 +34,9 @@ def parse_mi_scale_data(sender, data):
         else:
             unit = 'unknown'
 
-        miimpedance = int.from_bytes(data2[8:10], byteorder="little") if hasImpedance else "N/A"
+        miimpedance = "N/A"
+        if hasImpedance and len(data2) >= 10:
+            miimpedance = int.from_bytes(data2[8:10], byteorder="little") 
 
         print(f"Weight: {measured:.2f} {unit}, Stabilized: {bool(isStabilized)}, Impedance: {miimpedance}")
     except Exception as e:
