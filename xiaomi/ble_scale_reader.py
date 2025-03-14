@@ -16,8 +16,8 @@ def parse_mi_scale_data(sender, data):
         isStabilized = ctrlByte1 & (1 << 5)
         hasImpedance = ctrlByte1 & (1 << 1)
 
-        weight_raw = int.from_bytes(data2[2:4], byteorder="little")
-        measured = weight_raw * 0.01 
+        weight_raw = int.from_bytes(data2[6:8], byteorder="little")
+        measured = weight_raw * 0.1 
 
         unit_code = data2[0] & 0xF0
         if unit_code == 0x00:
