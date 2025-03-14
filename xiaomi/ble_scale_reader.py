@@ -8,10 +8,10 @@ WEIGHT_CHARACTERISTIC_UUID = "00002a9c-0000-1000-8000-00805f9b34fb"
 
 def parse_mi_scale_data(sender, data):
     try:
-        hex_data = data.hex()
-        print(f"[Notification] {sender} -> Raw Data: {hex_data}")
+        hex_data = "1b18" + data.hex()      # 32 bit alignment
+        data2 = bytes.fromhex(data[4:])
+        print(f"[Notification] {sender} -> Raw Data: {data2}")
 
-        data2 = bytes.fromhex(hex_data)
         ctrlByte1 = data2[1]
         isStabilized = ctrlByte1 & (1 << 5)
         hasImpedance = ctrlByte1 & (1 << 1)
@@ -21,22 +21,15 @@ def parse_mi_scale_data(sender, data):
         day = data2[5]
         date_str = f"{year}-{month:02d}-{day:02d}"
 
-
-        weight_raw = int.from_bytes(data2[6:8], byteorder="little")
-        measured = weight_raw * 0.1 
-
-        unit_code = data2[0] & 0xF0
-        if unit_code == 0x00:
-            unit = 'kg'
-        elif unit_code == 0x10:
-            unit = 'lbs'
-            measured *= 0.453592 
-        else:
-            unit = 'unknown'
+        measunit = hex_data[4:6]
+        measured = int((hex_data[28:30] + hex_data[26:28]), 16) * 0.01
+        unit = ''
+        if measunit == "03" : unit = 'lbs'
+        if measunit == "02" : unit = 'kg' ; measured = measured /2
 
         miimpedance = "N/A"
-        if hasImpedance and len(data2) >= 10:
-            miimpedance = int.from_bytes(data2[8:10], byteorder="little") 
+        if hasImpedance:
+            miimpedance = str(int((hex_data[24:26] + hex_data[22:24]), 16))
 
         print(f"Date: {date_str}, Weight: {measured:.2f} {unit}, Stabilized: {bool(isStabilized)}, Impedance: {miimpedance}")
     except Exception as e:
