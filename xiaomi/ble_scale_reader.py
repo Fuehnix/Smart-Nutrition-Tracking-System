@@ -9,8 +9,8 @@ WEIGHT_CHARACTERISTIC_UUID = "00002a9c-0000-1000-8000-00805f9b34fb"
 def parse_mi_scale_data(sender, data):
     try:
         hex_data = "1b18" + data.hex()      # 32 bit alignment
-        data2 = data[4:]
-        print(f"[Notification] {sender} -> Raw Data: {data}")
+        data2 = data
+        print(f"[Notification] {sender} -> Raw Data: {hex_data}")
 
         ctrlByte1 = data2[1]
         isStabilized = ctrlByte1 & (1 << 5)
