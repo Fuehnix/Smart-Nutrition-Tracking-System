@@ -16,19 +16,21 @@ def parse_mi_scale_data(sender, data):
         isStabilized = ctrlByte1 & (1 << 5)
         hasImpedance = ctrlByte1 & (1 << 1)
 
-        measunit = hex_data[0:2]
-        measured = int((hex_data[10:12] + hex_data[12:14]), 16) * 0.01
+        weight_raw = int.from_bytes(data2[2:4], byteorder="little")
+        measured = weight_raw * 0.01 
 
-        unit = ''
-        if measunit == "03":
-            unit = 'lbs'
-        elif measunit == "02":
+        unit_code = data2[0] & 0xF0
+        if unit_code == 0x00:
             unit = 'kg'
-            measured = measured 
+        elif unit_code == 0x10:
+            unit = 'lbs'
+            measured *= 0.453592 
+        else:
+            unit = 'unknown'
 
-        miimpedance = int((hex_data[8:10] + hex_data[6:8]), 16)
+        miimpedance = int.from_bytes(data2[8:10], byteorder="little") if hasImpedance else "N/A"
 
-        print(f"Weight: {measured} {unit}, Stabilized: {bool(isStabilized)}, Impedance: {miimpedance if hasImpedance else 'N/A'}")
+        print(f"Weight: {measured:.2f} {unit}, Stabilized: {bool(isStabilized)}, Impedance: {miimpedance}")
     except Exception as e:
         print(f"Error parsing data: {e}")
 
