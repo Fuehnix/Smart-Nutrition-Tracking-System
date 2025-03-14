@@ -12,10 +12,6 @@ def parse_mi_scale_data(sender, data):
         data2 = data[4:]
         print(f"[Notification] {sender} -> Raw Data: {data2}")
 
-        if len(data2) < 10:
-            print("Received data is too short")
-            return
-
         ctrlByte1 = data2[1]
         isStabilized = ctrlByte1 & (1 << 5)
         hasImpedance = ctrlByte1 & (1 << 1)
