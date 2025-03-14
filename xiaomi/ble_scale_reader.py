@@ -38,7 +38,7 @@ def parse_mi_scale_data(sender, data):
         if hasImpedance and len(data2) >= 10:
             miimpedance = int.from_bytes(data2[8:10], byteorder="little") 
 
-        print(f"Weight: {measured:.2f} {unit}, Stabilized: {bool(isStabilized)}, Impedance: {miimpedance}")
+        print(f"Date: {date_str}, Weight: {measured:.2f} {unit}, Stabilized: {bool(isStabilized)}, Impedance: {miimpedance}")
     except Exception as e:
         print(f"Error parsing data: {e}")
 
