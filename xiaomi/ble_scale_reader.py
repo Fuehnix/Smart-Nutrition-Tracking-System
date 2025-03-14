@@ -10,7 +10,7 @@ def parse_mi_scale_data(sender, data):
     try:
         hex_data = "1b18" + data.hex()      # 32 bit alignment
         data2 = data[4:]
-        print(f"[Notification] {sender} -> Raw Data: {data2}")
+        print(f"[Notification] {sender} -> Raw Data: {data}")
 
         ctrlByte1 = data2[1]
         isStabilized = ctrlByte1 & (1 << 5)
