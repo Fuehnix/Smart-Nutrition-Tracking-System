@@ -23,7 +23,12 @@ def parse_mi_scale_data(sender, data):
         date_str = f"{year}-{month:02d}-{day:02d}"
 
         measunit = data[4:6]
-        weight = int((data[28:30] + data[26:28]), 16) * 0.01
+        if len(data) >= 30:
+            weight = int((data[28:30] + data[26:28]), 16) * 0.01
+            print(f"Extracted weight hex: {data[28:30]} {data[26:28]}")
+        else:
+            weight = 0
+
         unit = ''
         if measunit == "03": 
             unit = 'lbs'
