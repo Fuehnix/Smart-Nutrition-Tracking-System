@@ -37,6 +37,12 @@ Run the script using:
   
 Make sure your scale is turned on and in pairing mode.
 
+
+## Example
+Below is an example of execution  
+  
+<img src="./example.png" alt="Weight Measurement Fields" width = "800">
+
 ## References
 This implementation is based on the following sources:
 
