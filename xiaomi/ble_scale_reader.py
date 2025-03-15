@@ -16,7 +16,7 @@ def parse_mi_scale_data(sender, data):
         isStabilized = ctrlByte1 & (1 << 5)
         hasImpedance = ctrlByte1 & (1 << 1)
 
-        year = int(data[4:8], 16)
+        year = int((data[6:8] + data[4:6]), 16)
         month = int(data[8:10], 16)
         day = int(data[10:12], 16)
         date_str = f"{year}-{month:02d}-{day:02d}"
