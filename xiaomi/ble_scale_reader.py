@@ -9,23 +9,21 @@ WEIGHT_CHARACTERISTIC_UUID = "00002a9c-0000-1000-8000-00805f9b34fb"
 def parse_mi_scale_data(sender, data):
     try:
         data = binascii.b2a_hex(data).decode('ascii')
-        hex_data = "1b18" + data      # 32 bit alignment
-        data2 = bytes.fromhex(data[4:])
-        print(f"[Notification] {sender} -> data: {data}, hex_data: {hex_data}, data2: {data2}")
+        print(f"[Notification] {sender} -> data: {data}")
 
-        ctrlByte1 = data2[1]
+        ctrlByte1 = data[2:3]
         isStabilized = ctrlByte1 & (1 << 5)
         hasImpedance = ctrlByte1 & (1 << 1)
 
-        year = int.from_bytes(data2[2:4], byteorder="little")
-        month = data2[4]
-        day = data2[5]
+        year = int.from_bytes(data[4:7], byteorder="little")
+        month = data[8:9]
+        day = data[10:11]
         date_str = f"{year}-{month:02d}-{day:02d}"
 
-        measunit = data[4:6]
-        if len(data) >= 30:
-            weight = int((data[28:30] + data[26:28]), 16) * 0.01
-            print(f"Extracted weight hex: {data[28:30]} {data[26:28]}")
+        measunit = data[0:1]
+        if len(data) >= 20:
+            weight = int((data[24:25] + data[22:23]), 16) * 0.01
+            print(f"Extracted weight hex: {data[24:25]} {data[22:23]}")
         else:
             weight = 0
 
@@ -38,7 +36,7 @@ def parse_mi_scale_data(sender, data):
 
         miimpedance = "N/A"
         if hasImpedance:
-            miimpedance = str(int((data[24:26] + data[22:24]), 16))
+            miimpedance = str(int((data[20:21] + data[18:19]), 16))
 
         print(f"Date: {date_str}, Weight: {weight:.2f} {unit}, Stabilized: {bool(isStabilized)}, Impedance: {miimpedance}")
     except Exception as e:
