@@ -1,6 +1,7 @@
 import asyncio
 import binascii
 from bleak import BleakClient
+import binascii
 
 SCALE_MAC_ADDRESS = "5C:CA:D3:6F:25:2D"
 SERVICE_UUID = "0000181b-0000-1000-8000-00805f9b34fb"
@@ -11,32 +12,32 @@ def parse_mi_scale_data(sender, data):
         data = binascii.b2a_hex(data).decode('ascii')
         print(f"[Notification] {sender} -> data: {data}")
 
-        ctrlByte1 = data[2:3]
+        ctrlByte1 = int(data[2:4], 16)
         isStabilized = ctrlByte1 & (1 << 5)
         hasImpedance = ctrlByte1 & (1 << 1)
 
-        year = int.from_bytes(data[4:7], byteorder="little")
-        month = data[8:9]
-        day = data[10:11]
+        year = int(data[4:8], 16)
+        month = int(data[8:10], 16)
+        day = int(data[10:12], 16)
         date_str = f"{year}-{month:02d}-{day:02d}"
 
-        measunit = data[0:1]
+        measunit = int(data[0:2], 16)
         if len(data) >= 20:
-            weight = int((data[24:25] + data[22:23]), 16) * 0.01
-            print(f"Extracted weight hex: {data[24:25]} {data[22:23]}")
+            weight = int((data[24:26] + data[22:24]), 16) * 0.01
+            print(f"Extracted weight hex: {data[24:26]} {data[22:24]}")
         else:
             weight = 0
 
         unit = ''
-        if measunit == "03": 
+        if measunit == 0x03: 
             unit = 'lbs'
-        elif measunit == "02": 
+        elif measunit == 0x02: 
             unit = 'kg' 
             weight = weight / 2
 
         miimpedance = "N/A"
         if hasImpedance:
-            miimpedance = str(int((data[20:21] + data[18:19]), 16))
+            miimpedance = str(int((data[20:22] + data[18:20]), 16))
 
         print(f"Date: {date_str}, Weight: {weight:.2f} {unit}, Stabilized: {bool(isStabilized)}, Impedance: {miimpedance}")
     except Exception as e:
