@@ -1,5 +1,8 @@
 # Barcode Scanning & Nutrition API Module
 
+## Demo Video
+[Watch the Demo](https://drive.google.com/file/d/1_NHLVHGSkWCUWRiFxpLCI6bT1l_yf_zr/view?usp=sharing)
+
 ## Overview
 This module handles barcode scanning functionality and nutrition data retrieval for the Smart Nutrition Tracking System. It provides automated product identification via barcode scanning and retrieves detailed nutrition information from multiple sources.
 
