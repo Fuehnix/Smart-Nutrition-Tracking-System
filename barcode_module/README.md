@@ -13,7 +13,6 @@ This module handles barcode scanning functionality and nutrition data retrieval 
 ## Hardware Requirements
 - Raspberry Pi 5
 - Waveshare GW-Barcode Scanner Module (connects via USB)
-- (Optional) PiCar-X camera for image-based barcode scanning
 
 ## Software Dependencies
 - Python 3.x
@@ -21,22 +20,20 @@ This module handles barcode scanning functionality and nutrition data retrieval 
 - requests
 - openai (v0.28.0)
 - python-dotenv
-- (Optional) pyzbar and opencv-python for camera functionality
 
 ## API Keys Required
 This module requires API keys for external services:
-- USDA FoodData Central API key
-- OpenAI API key
+- USDA FoodData Central API key: https://fdc.nal.usda.gov/api-key-signup.html
+- OpenAI API key: https://platform.openai.com/api-keys
 
-API keys should be stored in a `.env` file in the home directory.
+API keys should be stored in a `.env` file in the home directory. The keys will be available immediately after registration on these websites.
 
-## Files (Coming Soon)
-The module will contain the following files:
+## Files
+The module contains the following files:
 - `main.py`: Entry point that initializes components and runs the main scanning loop
 - `config.py`: Configuration settings and API key management
 - `barcode_scanner.py`: Interface with the Waveshare barcode scanner
 - `nutrition_api.py`: Handle nutrition data retrieval from all sources
-- `camera_scanner.py` (optional): Camera-based barcode scanning
 
 ## How It Works
 The module follows a three-tier approach to nutrition data retrieval:
@@ -53,6 +50,7 @@ This module will integrate with:
 - AI-Based Food Recognition component
 
 ## Usage (Basic Example)
+
 ```python
 # Initialize the scanner and nutrition API
 scanner = BarcodeScanner()
@@ -71,14 +69,36 @@ if nutrition_data:
     # etc.
 ```
 ## Setup Instructions
-Full setup instructions and implementation files will be added soon. The setup will involve:
-1. Installing required Python packages
-2. Configuring API keys
-3. Setting up the barcode scanner
-4. Testing the system with various products
+To set up this module:
+
+1. Install required Python packages:
+```bash
+pip install pyserial requests python-dotenv openai==0.28.0
+```
+2. Create a `.env` file in your home directory:
+```bash
+nano ~/.env
+```
+3. Add your API keys to the `.env` file:
+USDA_API_KEY=your_usda_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
+
+Connect the Waveshare barcode scanner to a USB port on the Raspberry Pi
+Run the main application:
+python main.py
+
+## Barcode Scanner Compatibility
+This implementation is optimized for the Waveshare GW-Barcode Scanner Module. The scanner is detected as "Hangzhou Worlde USBScn Module" in the USB device list.
+
+## Future Enhancements
+Potential future improvements include:
+- Camera-based barcode scanning using Raspberry Pi camera or PiCar-X camera
+- Local caching of previously scanned products
+- Improved serving size and weight conversion
+- Addition of allergen and ingredient information
 
 ## Status
-This module is complete and functioning as designed. Implementation files will be uploaded incrementally, starting with configuration and main component files.
+This module is complete and functioning as designed. All required files are now available.
 
 ## Team Member
 Implemented by: Mohammad Tamim
