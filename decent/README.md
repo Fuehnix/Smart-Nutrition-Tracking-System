@@ -2,53 +2,18 @@
 This project reads and parses weight data from a Decent Scale using Python and the `bleak` library.  
   
 ## Installation
-1. Install Python (>= 3.7) if not already installed.  
-2. Install required dependencies:  
-    `pip install --upgrade bleak`
-3. Clone this repository or copy the script to your working directory.  
   
   
 ## How It Works  
-The script connects to the Xiaomi Mi Scale via Bluetooth, listens for weight data, and parses key values such as:  
-  
-* Control Byte  
-  Determines whether the measurement is stabilized and whether impedance data is available.
-
-* Weight  
-  Extracted from the received data in either kg or lbs.
-
-* Measurement Date  
-  Extracted from the data payload.  
-
-* Impedance Value  
-  If available, this value is extracted.  
 
 ## Data Parsing Explanation
-Below is an illustration of how the control byte and weight data are extracted:
-
-<img src="./weight measurement fields.png" alt="Weight Measurement Fields" width = "600">
-
-<img src="./control byte.png" alt="Control Byte Parsing" width = "300">
 
 ## Usage
-Run the script using:
-
-`python3 mi_scale_reader.py`  
-  
-Make sure your scale is turned on and in pairing mode.
 
 
 ## Example
-Below is an example of execution  
-  
-<img src="./example.png" alt="Weight Measurement Fields" width = "800">
 
 ## References
-This implementation is based on the following sources:
-
-[Xiaomi Mi Scale Data Format - OpenScale Wiki](https://github.com/oliexdev/openScale/wiki/Xiaomi-Bluetooth-Mi-Scale)
-
-[Web Bluetooth Mi Scale Implementation](https://github.com/limhenry/web-bluetooth-mi-scale/blob/master/main.js)
 
 ## License
 This project is open-source and free to use under the MIT License.
