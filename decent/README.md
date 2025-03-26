@@ -1,5 +1,5 @@
-# Xiaomi Mi Scale Data Reader via Bluetooth Low Energy 
-This project reads and parses weight data from a Xiaomi Bluetooth Mi Scale using Python and the `bleak` library.  
+# Decent Scale Data Reader via Bluetooth Low Energy
+This project reads and parses weight data from a Decent Scale using Python and the `bleak` library.  
   
 ## Installation
 1. Install Python (>= 3.7) if not already installed.  
