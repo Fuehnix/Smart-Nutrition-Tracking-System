@@ -79,7 +79,7 @@ async def read_weight_with_bleak():
 
             # Start notifications for the weight characteristic
             await client.start_notify(WEIGHT_CHARACTERISTIC_UUID, parse_scale_data)
-            await asyncio.sleep(10)  # Keep reading for 10 seconds
+            await asyncio.sleep(5)  # Keep reading for 5 seconds
             await client.stop_notify(WEIGHT_CHARACTERISTIC_UUID)
 
         except Exception as e:
