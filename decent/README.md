@@ -4,7 +4,7 @@ This project reads and parses weight data from a Decent Scale using Python and t
 ## Installation
 1. Install Python (>= 3.7) if not already installed.  
 2. Install required dependencies:  
-    `pip install --upgrade bleak`
+    `sudo pip install bleak --break-system-packages`
 3. Clone this repository or copy the script to your working directory.  
   
   
