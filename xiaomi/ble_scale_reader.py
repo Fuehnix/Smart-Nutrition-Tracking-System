@@ -156,7 +156,7 @@ def calculate_body_metrics(weight, impedance):
 def parse_mi_scale_data(sender, data):
     try:
         data = binascii.b2a_hex(data).decode('ascii')
-        print(f"[Notification] {sender} -> data: {data}")
+#        print(f"[Notification] {sender} -> data: {data}")
 
         ctrlByte1 = int(data[2:4], 16)
         isStabilized = ctrlByte1 & (1 << 5)
@@ -170,7 +170,7 @@ def parse_mi_scale_data(sender, data):
         measunit = int(data[0:2], 16)
         if len(data) >= 20:
             weight = int((data[24:26] + data[22:24]), 16) * 0.01
-            print(f"Extracted weight hex: {data[24:26]} {data[22:24]}")
+#            print(f"Extracted weight hex: {data[24:26]} {data[22:24]}")
         else:
             weight = 0
 
