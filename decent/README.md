@@ -31,7 +31,7 @@ Below is an example of execution
 ## References
 This implementation is based on the following sources:
 
-[pydecentscale](https://github.com/lucapinello/pydecentscale)
+- [pydecentscale](https://github.com/lucapinello/pydecentscale)
 
 
 ## License

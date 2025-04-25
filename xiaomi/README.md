@@ -47,7 +47,7 @@ Below is an example of execution
 ## Researches
 
 Visceral Fat calculation is based on the following research:  
-[Estimating Visceral Fat Area by Multifrequency Bioelectrical Impedance](https://www.researchgate.net/publication/366218564_Dual-Frequency_Bioelectrical_Impedance_Analysis_is_Accurate_and_Reliable_to_Determine_Lean_Muscle_Mass_in_The_Elderly)
+- [Estimating Visceral Fat Area by Multifrequency Bioelectrical Impedance](https://www.researchgate.net/publication/366218564_Dual-Frequency_Bioelectrical_Impedance_Analysis_is_Accurate_and_Reliable_to_Determine_Lean_Muscle_Mass_in_The_Elderly)
 
 Life expectancy estimation algorithm is based on the following researches
 - [Edcation and Income Gradients in Logevity](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10659761)
@@ -57,9 +57,9 @@ Life expectancy estimation algorithm is based on the following researches
 ## References
 This implementation is based on the following sources:
 
-[Xiaomi Mi Scale Data Format - OpenScale Wiki](https://github.com/oliexdev/openScale/wiki/Xiaomi-Bluetooth-Mi-Scale)
+- [Xiaomi Mi Scale Data Format - OpenScale Wiki](https://github.com/oliexdev/openScale/wiki/Xiaomi-Bluetooth-Mi-Scale)
 
-[Web Bluetooth Mi Scale Implementation](https://github.com/limhenry/web-bluetooth-mi-scale/blob/master/main.js)
+- [Web Bluetooth Mi Scale Implementation](https://github.com/limhenry/web-bluetooth-mi-scale/blob/master/main.js)
 
 ## License
 This project is open-source and free to use under the MIT License.
