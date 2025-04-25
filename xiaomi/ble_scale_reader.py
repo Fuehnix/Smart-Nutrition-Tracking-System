@@ -9,7 +9,7 @@ WEIGHT_CHARACTERISTIC_UUID = "00002a9c-0000-1000-8000-00805f9b34fb"
 
 HEIGHT_OF_THIS_PERSON = 166
 SEX_OF_THIS_PERSON = "Female"
-AGE_OF_THIS_PERSON = 40
+AGE_OF_THIS_PERSON = 51
 
 
 def check_value_overflow(value, min_val, max_val):
