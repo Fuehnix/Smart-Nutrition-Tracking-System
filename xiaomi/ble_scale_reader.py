@@ -141,7 +141,7 @@ def estimate_visceral_fat(weight, impedance):
 
     return max(1, round(vfat, 1))
 
-def predict_life_expectancy(bmi, fat_percentage, age, sex, income, education_years, country):
+def predict_life_expectancy(bmi, fat_percentage):
     
     age = AGE_OF_THIS_PERSON
     sex = SEX_OF_THIS_PERSON
