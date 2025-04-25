@@ -50,6 +50,9 @@ This implementation is based on the following sources:
 
 [Web Bluetooth Mi Scale Implementation](https://github.com/limhenry/web-bluetooth-mi-scale/blob/master/main.js)
 
+Visceral Fat calculation is based on the following research
+[Estimating Visceral Fat Area by Multifrequency Bioelectrical Impedance](https://www.researchgate.net/publication/366218564_Dual-Frequency_Bioelectrical_Impedance_Analysis_is_Accurate_and_Reliable_to_Determine_Lean_Muscle_Mass_in_The_Elderly)
+
 ## License
 This project is open-source and free to use under the MIT License.
   

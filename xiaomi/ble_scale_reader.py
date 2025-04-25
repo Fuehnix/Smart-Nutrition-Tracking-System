@@ -134,13 +134,33 @@ def get_visceral_fat(weight):
     return check_value_overflow(vfal, 1, 50)
 
 
-def estimate_visceral_fat(weight, height, age, sex):
+def estimate_visceral_fat(weight, impedance):
+    fat_percentage = get_fat_percentage(weight, impedance)
+    muscle_mass = get_muscle_mass(weight, impedance)    
+    height = HEIGHT_OF_THIS_PERSON
+    age = AGE_OF_THIS_PERSON
+    sex = SEX_OF_THIS_PERSON    
+
     bmi = weight / ((height / 100) ** 2)
-    
-    if sex.lower() == "female":
-        vfat = 0.1 * bmi + 0.07 * age - 1.5
+
+    if sex.lower() == 'female':
+        vfat = (
+            0.082 * bmi +
+            0.062 * age +
+            0.14 * fat_percentage +
+            (-0.08) * muscle_mass / weight * 100 +
+            0.05 * (impedance / (height ** 2)) +
+            2.0
+        )
     else:
-        vfat = 0.15 * bmi + 0.1 * age - 4.0
+        vfat = (
+            0.091 * bmi +
+            0.071 * age +
+            0.10 * fat_percentage +
+            (-0.07) * muscle_mass / weight * 100 +
+            0.06 * (impedance / (height ** 2)) +
+            1.5
+        )
 
     return max(1, round(vfat, 1))
 
@@ -156,7 +176,7 @@ def calculate_body_metrics(weight, impedance):
         "Water Percentage": get_water_percentage(weight, impedance),
         "Protein Percentage": get_protein_percentage(weight, impedance),
         "BMR": get_BMR(weight),
-        "Visceral Fat": estimate_visceral_fat(weight, HEIGHT_OF_THIS_PERSON, AGE_OF_THIS_PERSON, SEX_OF_THIS_PERSON)
+        "Visceral Fat": estimate_visceral_fat(weight, impedance)
     }
 
     print("\n🔍 Body Metrics Summary:")
