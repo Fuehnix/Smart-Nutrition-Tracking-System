@@ -10,7 +10,9 @@ WEIGHT_CHARACTERISTIC_UUID = "00002a9c-0000-1000-8000-00805f9b34fb"
 HEIGHT_OF_THIS_PERSON = 166
 SEX_OF_THIS_PERSON = "Female"
 AGE_OF_THIS_PERSON = 51
-
+INCOME_OF_THIS_PERSON = 200000
+EDUDATION_OF_THIS_PERSON = 20
+COUNTRY_OF_THIS_PERSON = 'Korea'
 
 def check_value_overflow(value, min_val, max_val):
     return max(min_val, min(max_val, value))
@@ -109,31 +111,6 @@ def get_BMR(weight):
     return bmr
 
 
-def get_visceral_fat(weight):
-    height = HEIGHT_OF_THIS_PERSON
-    age = AGE_OF_THIS_PERSON
-    sex = SEX_OF_THIS_PERSON
-
-    if sex == "Female":
-        if weight > (13 - (height * 0.5)) * -1:
-            subsubcalc = ((height * 1.45) + (height * 0.1158) * height) - 120
-            subcalc = weight * 500 / subsubcalc
-            vfal = (subcalc - 6) + (age * 0.07)
-        else:
-            subcalc = 0.691 + (height * -0.0024) + (height * -0.0024)
-            vfal = (((height * 0.027) - (subcalc * weight)) * -1) + (age * 0.07) - age
-
-    else:
-        if height < weight * 1.6:
-            subcalc = ((height * 0.4) - (height * (height * 0.0826))) * -1
-            vfal = ((weight * 305) / (subcalc + 48)) - 2.9 + (age * 0.15)
-        else:
-            subcalc = 0.765 + height * -0.0015
-            vfal = (((height * 0.143) - (weight * subcalc)) * -1) + (age * 0.15) - 5.0
-
-    return check_value_overflow(vfal, 1, 50)
-
-
 def estimate_visceral_fat(weight, impedance):
     fat_percentage = get_fat_percentage(weight, impedance)
     muscle_mass = get_muscle_mass(weight, impedance)    
@@ -164,6 +141,106 @@ def estimate_visceral_fat(weight, impedance):
 
     return max(1, round(vfat, 1))
 
+def predict_life_expectancy(bmi, fat_percentage, age, sex, income, education_years, country):
+    
+    age = AGE_OF_THIS_PERSON
+    sex = SEX_OF_THIS_PERSON
+    income = INCOME_OF_THIS_PERSON
+    education_years = EDUDATION_OF_THIS_PERSON
+    country = COUNTRY_OF_THIS_PERSON
+
+    base_life_expectancy = {
+        'USA': {'male': 76, 'female': 81},
+        'Korea': {'male': 80, 'female': 86},
+        'Japan': {'male': 81, 'female': 87},
+        'UK': {'male': 79, 'female': 83},
+        'Germany': {'male': 78, 'female': 83},
+        'France': {'male': 79, 'female': 85},
+        'Canada': {'male': 80, 'female': 84},
+        'Australia': {'male': 81, 'female': 85},
+        'China': {'male': 75, 'female': 78},
+        'India': {'male': 68, 'female': 70},
+        'Brazil': {'male': 72, 'female': 79},
+        'South Africa': {'male': 63, 'female': 67}
+    }
+
+    country = country.strip().title()
+    sex = sex.strip().lower()
+
+    if country in base_life_expectancy and sex in base_life_expectancy[country]:
+        life_expectancy = base_life_expectancy[country][sex]
+    else:
+        life_expectancy = 72  # world average life expectancy
+
+    # BMI adjustment (sex-specific)
+    if sex == 'Female':
+        if bmi < 18.5:
+            life_expectancy -= 2
+        elif 18.5 <= bmi <= 24.9:
+            life_expectancy += 2
+        elif 25.0 <= bmi <= 29.9:
+            life_expectancy += 0  
+        else:  # BMI ≥ 30
+            life_expectancy -= 3
+    else:  # male
+        if bmi < 18.5:
+            life_expectancy -= 2
+        elif 18.5 <= bmi <= 24.9:
+            life_expectancy += 2
+        elif 25.0 <= bmi <= 29.9:
+            life_expectancy += 1  
+        else:  # BMI ≥ 30
+            life_expectancy -= 2
+
+    # fat percentage adjustment
+    if sex == 'Female':
+        if fat_percentage < 21:
+            life_expectancy -= 1
+        elif 21 <= fat_percentage <= 33:
+            life_expectancy += 1
+        elif 33 < fat_percentage <= 39:
+            life_expectancy += 0
+        else:  # fat_percentage > 39
+            life_expectancy -= 2
+    else:  # male
+        if fat_percentage < 8:
+            life_expectancy -= 1
+        elif 8 <= fat_percentage <= 20:
+            life_expectancy += 1
+        elif 20 < fat_percentage <= 25:
+            life_expectancy += 0
+        else:  # fat_percentage > 25
+            life_expectancy -= 2
+
+    # income adjustment
+    if income < 20000:
+        life_expectancy -= 2
+    elif 20000 <= income < 50000:
+        life_expectancy += 0
+    elif 50000 <= income < 100000:
+        life_expectancy += 1
+    else:  # income ≥ 100000
+        life_expectancy += 2
+
+    # education adjustment
+    if education_years < 12:
+        life_expectancy -= 2
+    elif 12 <= education_years < 16:
+        life_expectancy += 0
+    else:  # education_years ≥ 16
+        life_expectancy += 2
+
+    # age adjustment
+    if age < 0 or age > 120:
+        return "Invalid Age."
+
+    # live at least one year more than age
+    if life_expectancy < age:
+        life_expectancy = age + 1  
+
+    return round(life_expectancy, 1)
+
+
 
 def calculate_body_metrics(weight, impedance):
     metrics = {
@@ -182,6 +259,14 @@ def calculate_body_metrics(weight, impedance):
     print("\n🔍 Body Metrics Summary:")
     for key, value in metrics.items():
         print(f" - {key:20}: {value:.2f}")
+
+    # Predict life expectancy
+    life_expectancy = predict_life_expectancy(
+        bmi = metrics["BMI"],
+        fat_percentage=metrics["Fat Percentage"]
+    )
+
+    print(f"\n🎯 Predicted Life Expectancy: {life_expectancy:.1f} years")
 
 
 def parse_mi_scale_data(sender, data):
