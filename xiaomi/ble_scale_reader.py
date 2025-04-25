@@ -267,8 +267,8 @@ def calculate_body_metrics(weight, impedance):
     )
 
     print(f"\n🎯 Predicted Life Expectancy in 2025: {life_expectancy:.1f} years")
-    print(f"\n🎯 Predicted Life Expectancy in 2055: {life_expectancy + 30*0.2:.1f} years") # increase by 0.2 years each year
-    print(f"\n🎯 Predicted Healthy Life Expectancy in 2055: {life_expectancy + 30*0.2 - 7:.1f} years") # 7 years remaining unhealthy life
+    print(f"🧬 Predicted Life Expectancy in 2055: {life_expectancy + 30*0.2:.1f} years") # increase by 0.2 years each year
+    print(f"💪 Predicted Healthy Life Expectancy in 2055: {life_expectancy + 30*0.2 - 7:.1f} years") # 7 years remaining unhealthy life
 
 
 
