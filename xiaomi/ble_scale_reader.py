@@ -7,10 +7,10 @@ SCALE_MAC_ADDRESS = "5C:CA:D3:6F:25:2D"
 SERVICE_UUID = "0000181b-0000-1000-8000-00805f9b34fb"
 WEIGHT_CHARACTERISTIC_UUID = "00002a9c-0000-1000-8000-00805f9b34fb"
 
-HEIGHT_OF_THIS_PERSON = 169
-SEX_OF_THIS_PERSON = "Male"
-AGE_OF_THIS_PERSON = 57
-INCOME_OF_THIS_PERSON = 400000
+HEIGHT_OF_THIS_PERSON = 166
+SEX_OF_THIS_PERSON = "Female"
+AGE_OF_THIS_PERSON = 51
+INCOME_OF_THIS_PERSON = 100000
 EDUDATION_OF_THIS_PERSON = 18
 COUNTRY_OF_THIS_PERSON = 'Korea'
 
@@ -266,7 +266,10 @@ def calculate_body_metrics(weight, impedance):
         fat_percentage=metrics["Fat Percentage"]
     )
 
-    print(f"\n🎯 Predicted Life Expectancy: {life_expectancy:.1f} years")
+    print(f"\n🎯 Predicted Life Expectancy in 2025: {life_expectancy:.1f} years")
+    print(f"\n🎯 Predicted Life Expectancy in 2055: {life_expectancy + 30*0.2:.1f} years") # increase by 0.2 years each year
+    print(f"\n🎯 Predicted Healthy Life Expectancy in 2055: {life_expectancy + 30*0.2 - 7:.1f} years") # 7 years remaining unhealthy life
+
 
 
 def parse_mi_scale_data(sender, data):

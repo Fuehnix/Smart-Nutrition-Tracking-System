@@ -41,7 +41,7 @@ Make sure your scale is turned on and in pairing mode.
 ## Example
 Below is an example of execution  
   
-<img src="./example.png" alt="Xiaomi Example" width = "800">
+<img src="./example2.png" alt="Xiaomi Example" width = "800">
 
 
 ## Researches
