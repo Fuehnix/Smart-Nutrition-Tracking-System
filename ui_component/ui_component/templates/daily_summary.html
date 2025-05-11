@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Summary - Smart Nutrition Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <a href="{{ url_for('index') }}" class="back-button">←</a>
+            <h1>Daily Summary</h1>
+        </header>
+        
+        <div class="summary-container">
+            {% if items %}
+                <div class="dashboard-section">
+                    <h2>Today's Totals</h2>
+                    <div class="totals-grid">
+                        <div class="total-item">
+                            <div class="total-label">Calories</div>
+                            <div class="total-value calories-total">{{ totals.calories|round|int }}</div>
+                        </div>
+                        <div class="total-item">
+                            <div class="total-label">Protein</div>
+                            <div class="total-value protein-total">{{ totals.protein_g|round(1) }}g</div>
+                        </div>
+                        <div class="total-item">
+                            <div class="total-label">Carbs</div>
+                            <div class="total-value carbs-total">{{ totals.carbs_g|round(1) }}g</div>
+                        </div>
+                        <div class="total-item">
+                            <div class="total-label">Fat</div>
+                            <div class="total-value fat-total">{{ totals.fat_g|round(1) }}g</div>
+                        </div>
+                        <div class="total-item">
+                            <div class="total-label">Sugar</div>
+                            <div class="total-value sugar-total">{{ totals.sugar_g|round(1) }}g</div>
+                        </div>
+                        <div class="total-item">
+                            <div class="total-label">Fiber</div>
+                            <div class="total-value fiber-total">{{ totals.fiber_g|round(1) }}g</div>
+                        </div>
+                        <div class="total-item">
+                            <div class="total-label">Sodium</div>
+                            <div class="total-value sodium-total">{{ totals.sodium_mg|round|int }}mg</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-section" id="charts-section">
+                    <h2>Nutrition Breakdown</h2>
+                    <div class="dashboard-charts">
+                        <div class="chart-container">
+                            <h3>Macronutrient Distribution</h3>
+                            <div id="macro-chart-container"></div>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <h3>Calorie Breakdown</h3>
+                            <div id="calorie-chart-container"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-section">
+                    <h3>Today's Items</h3>
+                    <div class="today-items-list">
+                        {% for item in items %}
+                        <div class="summary-item">
+                            <div class="item-details">
+                                <h4>{{ item.name }}</h4>
+                                <div class="item-meta">
+                                    <span class="calories">{{ item.calories }} calories</span>
+                                    <span class="serving">{{ item.serving_size }}</span>
+                                </div>
+                            </div>
+                            <div class="item-macros">
+                                <span class="macro">P: {{ item.protein_g }}g</span>
+                                <span class="macro">C: {{ item.carbs_g }}g</span>
+                                <span class="macro">F: {{ item.fat_g }}g</span>
+                            </div>
+                            <a href="{{ url_for('nutrition_details', item_id=loop.index0) }}" class="btn btn-sm">Details</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <h2>No Items Today</h2>
+                    <p>You haven't scanned any food items today</p>
+                    <a href="{{ url_for('scan') }}" class="btn btn-lg">Scan Your First Item</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <footer class="main-footer">
+        <p>&copy; 2025 Smart Nutrition Tracking System | CS437: Internet of Things</p>
+    </footer>
+    
+    {% if items %}
+    <script>
+    // Initialize charts only after DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Use a small timeout to ensure the UI is responsive first
+        setTimeout(function() {
+            initializeDailySummaryCharts();
+        }, 100);
+        
+        function initializeDailySummaryCharts() {
+            try {
+                // Macronutrient Distribution Chart
+                const macroContainer = document.getElementById('macro-chart-container');
+                const macroCanvas = document.createElement('canvas');
+                macroCanvas.id = 'macroChart';
+                macroCanvas.height = 200;
+                macroContainer.appendChild(macroCanvas);
+                
+                const macroCtx = macroCanvas.getContext('2d');
+                const macroChart = new Chart(macroCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Protein', 'Carbs', 'Fat'],
+                        datasets: [{
+                            data: [
+                                {{ totals.protein_g }},
+                                {{ totals.carbs_g }},
+                                {{ totals.fat_g }}
+                            ],
+                            backgroundColor: [
+                                '#FF6384',
+                                '#36A2EB',
+                                '#FFCE56'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 500 
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${percentage}% (${value.toFixed(1)}g)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Calorie Breakdown Chart - Only load after a brief delay
+                setTimeout(function() {
+                    const calorieContainer = document.getElementById('calorie-chart-container');
+                    const calorieCanvas = document.createElement('canvas');
+                    calorieCanvas.id = 'calorieChart';
+                    calorieCanvas.height = 200;
+                    calorieContainer.appendChild(calorieCanvas);
+                    
+                    const calorieCtx = calorieCanvas.getContext('2d');
+                    const calorieChart = new Chart(calorieCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: ['Protein', 'Carbs', 'Fat'],
+                            datasets: [{
+                                data: [
+                                    {{ totals.protein_g * 4 }}, // Protein: 4 calories per gram
+                                    {{ totals.carbs_g * 4 }},   // Carbs: 4 calories per gram
+                                    {{ totals.fat_g * 9 }}      // Fat: 9 calories per gram
+                                ],
+                                backgroundColor: [
+                                    '#FF6384',
+                                    '#36A2EB',
+                                    '#FFCE56'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                duration: 500 
+                            },
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.raw || 0;
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = Math.round((value / total) * 100);
+                                            return `${label}: ${percentage}% (${Math.round(value)} cal)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }, 300); // Delayed load for second chart
+            } catch (e) {
+                console.error("Error initializing charts:", e);
+                // Fallback to text display if charts fail
+                document.getElementById('charts-section').style.display = 'none';
+            }
+        }
+    });
+    </script>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - Smart Nutrition Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="{{ url_for('index') }}" class="back-button">←</a>
+            <h1>Scan History</h1>
+        </header>
+        
+        <div class="history-container">
+            {% if scanned_items %}
+                <div class="history-list">
+                    {% for item in scanned_items %}
+                    <div class="history-item">
+                        <div class="item-details">
+                            <h3>{{ item.name }}</h3>
+                            <div class="item-meta">
+                                <span class="calories">{{ item.calories }} calories</span>
+                                <span class="serving">{{ item.serving_size }}</span>
+                                <span class="timestamp">{{ item.timestamp }}</span>
+                            </div>
+                        </div>
+                        <div class="item-macros">
+                            <span class="macro">P: {{ item.protein_g }}g</span>
+                            <span class="macro">C: {{ item.carbs_g }}g</span>
+                            <span class="macro">F: {{ item.fat_g }}g</span>
+                        </div>
+                        <a href="{{ url_for('nutrition_details', item_id=loop.index0) }}" class="btn btn-sm">Details</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <h2>No Scan History</h2>
+                    <p>Start by scanning a food item or entering a product name</p>
+                    <a href="{{ url_for('scan') }}" class="btn btn-lg">Scan Your First Item</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

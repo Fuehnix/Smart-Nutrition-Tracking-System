@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Nutrition Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header class="main-header">
+            <div class="header-content">
+                <h1>Smart Nutrition Tracking System</h1>
+                <p class="tagline">Track your nutrition accurately and effortlessly</p>
+            </div>
+        </header>
+        
+        <div class="dashboard">
+            <div class="main-buttons">
+                <a href="{{ url_for('scan') }}" class="card-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14"></path></svg>
+                    <span>Scan Food</span>
+                </a>
+                <a href="{{ url_for('daily_summary') }}" class="card-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect><line x1="2" y1="12" x2="22" y2="12"></line><line x1="12" y1="2" x2="12" y2="22"></line></svg>
+                    <span>Daily Summary</span>
+                </a>
+                <a href="{{ url_for('history') }}" class="card-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span>History</span>
+                </a>
+                <a href="{{ url_for('body_composition_page') }}" class="card-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><circle cx="12" cy="14" r="4"></circle><path d="M12 18v-8"></path><path d="M8 14h8"></path></svg>
+                    <span>Body Composition</span>
+                </a>
+            </div>
+            
+            {% if scanned_items %}
+            <div class="dashboard-section">
+                <h2>Recently Scanned Items</h2>
+                <div class="items-grid">
+                    {% for item in scanned_items[:4] %}
+                    <div class="item-card">
+                        <div class="item-header">
+                            <h3>{{ item.name }}</h3>
+                            <div class="item-source">{{ item.source }}</div>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-calories">{{ item.calories }} calories</div>
+                            <div class="item-serving">{{ item.serving_size }}</div>
+                            <div class="item-macros">
+                                <span>P: {{ item.protein_g }}g</span>
+                                <span>C: {{ item.carbs_g }}g</span>
+                                <span>F: {{ item.fat_g }}g</span>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('nutrition_details', item_id=loop.index0) }}" class="btn btn-sm">View Details</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="dashboard-section">
+                <h2>Today's Nutrition</h2>
+                <div class="dashboard-charts">
+                    <div class="chart-container">
+                        <canvas id="macroChart" height="250"></canvas>
+                    </div>
+                    <div class="nutrition-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">Total Calories</div>
+                            <div class="summary-value calories-value">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Protein</div>
+                            <div class="summary-value protein-value">0g</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Carbs</div>
+                            <div class="summary-value carbs-value">0g</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Fat</div>
+                            <div class="summary-value fat-value">0g</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="welcome-card">
+                <div class="welcome-content">
+                    <h2>Welcome to Smart Nutrition Tracker</h2>
+                    <p>Start by scanning a food item or entering a product name</p>
+                    <div class="welcome-features">
+                        <div class="feature">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14"></path></svg>
+                            <span>Scan barcodes for packaged foods</span>
+                        </div>
+                        <div class="feature">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-4.97 0-9 4.03-9 9v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7c0-4.97-4.03-9-9-9z"></path><path d="M12 11l5 5M12 11l-5 5"></path><path d="M12 11m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path></svg>
+                            <span>Measure with connected scale</span>
+                        </div>
+                        <div class="feature">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                            <span>Identify foods with camera</span>
+                        </div>
+                        <div class="feature">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><circle cx="12" cy="14" r="4"></circle></svg>
+                            <span>Track body composition</span>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('scan') }}" class="btn btn-lg">Scan Your First Item</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <footer class="main-footer">
+        <p>&copy; 2025 Smart Nutrition Tracking System | CS437: Internet of Things</p>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    
+    {% if scanned_items %}
+    <script>
+        // Fetch daily totals for the chart
+        fetch('/api/daily_totals')
+            .then(response => response.json())
+            .then(data => {
+                // Update summary values
+                document.querySelector('.calories-value').textContent = Math.round(data.calories);
+                document.querySelector('.protein-value').textContent = data.protein_g.toFixed(1) + 'g';
+                document.querySelector('.carbs-value').textContent = data.carbs_g.toFixed(1) + 'g';
+                document.querySelector('.fat-value').textContent = data.fat_g.toFixed(1) + 'g';
+                
+                // Create macronutrient chart
+                const ctx = document.getElementById('macroChart').getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Protein', 'Carbs', 'Fat'],
+                        datasets: [{
+                            data: [
+                                data.protein_g * 4, 
+                                data.carbs_g * 4,   
+                                data.fat_g * 9      
+                            ],
+                            backgroundColor: [
+                                '#FF6384',
+                                '#36A2EB',
+                                '#FFCE56'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${percentage}% (${Math.round(value)} cal)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching daily totals:', error));
+    </script>
+    {% endif %}
+</body>
+</html>

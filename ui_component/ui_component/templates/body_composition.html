@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Body Composition - Smart Nutrition Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .body-comp-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .profile-section {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        
+        .profile-section h2 {
+            width: 100%;
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .profile-field {
+            flex: 1 0 30%;
+            margin-bottom: 15px;
+        }
+        
+        .profile-field label {
+            display: block;
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .profile-field input {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        
+        .profile-field select {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        
+        .height-inputs {
+            display: flex;
+            gap: 5px;
+            width: 90%;
+        }
+        
+        .height-inputs select {
+            width: 50%;
+        }
+        
+        .scan-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        
+        .scan-button:hover {
+            background-color: #388E3C;
+        }
+        
+        .scan-button:disabled {
+            background-color: #9E9E9E;
+            cursor: not-allowed;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 10px 0;
+            color: #2c3e50;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .metric-help {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .history-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .history-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .history-table th {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 2px solid #e9ecef;
+            color: #6c757d;
+        }
+        
+        .history-table td {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .loading-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-field {
+                flex: 1 0 45%;
+            }
+        }
+        
+        /* Custom notification system */
+        .custom-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-radius: 8px;
+            max-width: 350px;
+            z-index: 9999;
+            animation: slide-in 0.3s ease-out;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .success {
+            background-color: #dff8e5;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+        
+        .error {
+            background-color: #fee8e7;
+            color: #d32f2f;
+            border-left: 4px solid #d32f2f;
+        }
+        
+        .warning {
+            background-color: #fff3e0;
+            color: #ef6c00;
+            border-left: 4px solid #ef6c00;
+        }
+        
+        .notification-icon {
+            margin-right: 15px;
+        }
+        
+        .notification-message {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: inherit;
+            padding: 0 0 0 15px;
+            opacity: 0.7;
+        }
+        
+        .notification-close:hover {
+            opacity: 1;
+        }
+        
+        .fade-out {
+            animation: fade-out 0.5s ease-out forwards;
+        }
+        
+        @keyframes slide-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fade-out {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        /* Demo mode indicator */
+        .demo-mode-indicator {
+            background-color: #fff3e0;
+            color: #ef6c00;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-top: 10px;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .raw-weight-indicator {
+            margin-top: 10px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="body-comp-container">
+        <header>
+            <a href="{{ url_for('index') }}" class="back-button">←</a>
+            <h1>Body Composition Tracker</h1>
+        </header>
+        
+        <div class="profile-section">
+            <h2>Your Profile</h2>
+            
+            <div class="profile-field">
+                <label for="height">Height</label>
+                <div class="height-inputs">
+                    <select id="feet">
+                        <option value="4">4'</option>
+                        <option value="5" selected>5'</option>
+                        <option value="6">6'</option>
+                        <option value="7">7'</option>
+                    </select>
+                    <select id="inches">
+                        <option value="0">0"</option>
+                        <option value="1">1"</option>
+                        <option value="2">2"</option>
+                        <option value="3">3"</option>
+                        <option value="4">4"</option>
+                        <option value="5">5"</option>
+                        <option value="6">6"</option>
+                        <option value="7">7"</option>
+                        <option value="8">8"</option>
+                        <option value="9" selected>9"</option>
+                        <option value="10">10"</option>
+                        <option value="11">11"</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="profile-field">
+                <label for="age">Age</label>
+                <input type="number" id="age" value="30" min="18" max="100">
+            </div>
+            
+            <div class="profile-field">
+                <label for="sex">Sex</label>
+                <select id="sex">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+            
+            <div class="profile-field">
+                <label for="country">Country</label>
+                <select id="country">
+                    <option value="USA" selected>United States</option>
+                    <option value="Korea">Korea</option>
+                    <option value="Japan">Japan</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="Germany">Germany</option>
+                    <option value="France">France</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Australia">Australia</option>
+                    <option value="China">China</option>
+                    <option value="India">India</option>
+                </select>
+            </div>
+            
+            <button id="scan-button" class="scan-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; vertical-align: text-top;"><path d="M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"></path><line x1="2" y1="20" x2="2" y2="20"></line></svg>
+                Take Measurement
+            </button>
+            
+            <div id="demo-indicator" class="demo-mode-indicator hidden">
+                Demonstration mode - Using sample data
+            </div>
+        </div>
+        
+        <div id="body-metrics" class="hidden">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Weight</div>
+                    <div id="weight" class="metric-value">0 lb</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">BMI</div>
+                    <div id="bmi" class="metric-value">0</div>
+                    <div class="metric-help">Body Mass Index</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">Body Fat</div>
+                    <div id="body-fat" class="metric-value">0%</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">Muscle Mass</div>
+                    <div id="muscle-mass" class="metric-value">0 lb</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">Bone Mass</div>
+                    <div id="bone-mass" class="metric-value">0 lb</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">Body Water</div>
+                    <div id="body-water" class="metric-value">0%</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">Protein</div>
+                    <div id="protein" class="metric-value">0%</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">Basal Metabolism</div>
+                    <div id="basal-metabolism" class="metric-value">0 kcal</div>
+                    <div class="metric-help">Daily calorie needs at rest</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">Visceral Fat</div>
+                    <div id="visceral-fat" class="metric-value">0</div>
+                    <div class="metric-help">Fat around organs</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">Metabolic Age</div>
+                    <div id="metabolic-age" class="metric-value">0</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">Ideal Weight</div>
+                    <div id="ideal-weight" class="metric-value">0 lb</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-label">Life Expectancy</div>
+                    <div id="life-expectancy" class="metric-value">0</div>
+                    <div class="metric-help">Statistical estimate</div>
+                </div>
+            </div>
+            
+            <div class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-title">Body Composition</div>
+                    <canvas id="bodyCompChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">Weight History</div>
+                    <canvas id="weightHistoryChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="history-section">
+                <div class="history-title">Measurement History</div>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Weight</th>
+                            <th>BMI</th>
+                            <th>Body Fat</th>
+                            <th>Muscle</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div id="loading" class="loading-indicator hidden">
+        <div class="spinner"></div>
+        <p>Connecting to Xiaomi Scale...</p>
+    </div>
+    
+    <script>
+        // Store body composition history
+        let bodyCompHistory = [];
+        
+        // Add cooldown timer for measurements
+        let lastMeasurementTime = 0;
+        const COOLDOWN_TIME = 5000; // 5 seconds cooldown
+        
+        // Custom notification function
+        function showNotification(message, type = "success") {
+            // Remove any existing notification
+            const existingNotification = document.querySelector('.custom-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `custom-notification ${type}`;
+            
+            // Choose icon based on type
+            let icon = '';
+            if (type === 'success') {
+                icon = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+            } else if (type === 'error') {
+                icon = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+            } else if (type === 'warning') {
+                icon = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+            }
+            
+            notification.innerHTML = `
+                <div class="notification-icon">
+                    ${icon}
+                </div>
+                <div class="notification-message">${message}</div>
+                <button class="notification-close">×</button>
+            `;
+            
+            // Add to document
+            document.body.appendChild(notification);
+            
+            // Add event listener for close button
+            notification.querySelector('.notification-close').addEventListener('click', function() {
+                notification.remove();
+            });
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    notification.classList.add('fade-out');
+                    setTimeout(() => notification.remove(), 500);
+                }
+            }, 5000);
+        }
+        
+        // Convert height from feet/inches to cm
+        function heightToCm(feet, inches) {
+            return (feet * 30.48) + (inches * 2.54);
+        }
+        
+        // Convert kg to lb
+        function kgToLb(kg) {
+            return kg * 2.20462;
+        }
+        
+        // Convert lb to kg
+        function lbToKg(lb) {
+            return lb / 2.20462;
+        }
+        
+        // Format weight for display
+        function formatWeight(weight, unit) {
+            if (weight === null || weight === undefined) return '0 lb';
+            
+            if (unit === 'kg') {
+                // Convert kg to lb for display
+                return `${Math.round(kgToLb(weight))} lb`;
+            } else {
+                return `${Math.round(weight)} lb`;
+            }
+        }
+        
+        // Initialize charts
+        function initializeCharts(data) {
+            // Ensure we have valid data with default values if needed
+            const safeData = {
+                body_fat_percentage: data.body_fat_percentage || 20,
+                muscle_mass: data.muscle_mass || 120,
+                weight: data.weight || 150,
+                bone_mass: data.bone_mass || 7,
+                unit: data.unit || 'lb',
+                bmi: data.bmi || 22,
+                metabolic_age: data.metabolic_age || 30,
+                ideal_weight: data.ideal_weight || 150
+            };
+            
+            // Body composition chart
+            const bodyCompCtx = document.getElementById('bodyCompChart').getContext('2d');
+            
+            // Calculate percentages safely
+            let fatPercent = safeData.body_fat_percentage;
+            let musclePercent = ((safeData.muscle_mass / safeData.weight) * 100) || 70;
+            let bonePercent = ((safeData.bone_mass / safeData.weight) * 100) || 5;
+            let otherPercent = Math.max(0, 100 - fatPercent - musclePercent - bonePercent);
+            
+            const bodyCompChart = new Chart(bodyCompCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Fat', 'Muscle', 'Bone', 'Other'],
+                    datasets: [{
+                        data: [
+                            fatPercent,
+                            musclePercent,
+                            bonePercent,
+                            otherPercent
+                        ],
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#4BC0C0'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    return `${label}: ${value.toFixed(1)}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Add current measurement to history
+            const now = new Date();
+            const dateStr = now.toLocaleDateString();
+            
+            // Add to history if it's a new date or we have no history
+            if (bodyCompHistory.length === 0 || bodyCompHistory[bodyCompHistory.length - 1].date !== dateStr) {
+                bodyCompHistory.push({
+                    date: dateStr,
+                    weight: safeData.weight,
+                    unit: safeData.unit,
+                    bmi: safeData.bmi,
+                    bodyFat: safeData.body_fat_percentage,
+                    muscle: safeData.muscle_mass
+                });
+                
+                // Keep only last 30 records
+                if (bodyCompHistory.length > 30) {
+                    bodyCompHistory.shift();
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('bodyCompHistory', JSON.stringify(bodyCompHistory));
+            }
+            
+            // Weight history chart - last 7 records or all if less than 7
+            const historyToShow = bodyCompHistory.slice(-7);
+            
+            const weightHistoryCtx = document.getElementById('weightHistoryChart').getContext('2d');
+            const weightHistoryChart = new Chart(weightHistoryCtx, {
+                type: 'line',
+                data: {
+                    labels: historyToShow.map(record => record.date),
+                    datasets: [{
+                        label: 'Weight (lb)',
+                        data: historyToShow.map(record => {
+                            if (record.unit === 'kg') {
+                                return Math.round(kgToLb(record.weight));
+                            } else {
+                                return Math.round(record.weight);
+                            }
+                        }),
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            // Update history table
+            updateHistoryTable();
+        }
+        
+        // Update history table
+        function updateHistoryTable() {
+            const tableBody = document.getElementById('history-table-body');
+            tableBody.innerHTML = '';
+            
+            // Sort history by date (newest first)
+            const sortedHistory = [...bodyCompHistory].reverse();
+            
+            sortedHistory.forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.date}</td>
+                    <td>${formatWeight(record.weight, record.unit)}</td>
+                    <td>${record.bmi || '0'}</td>
+                    <td>${record.bodyFat || '0'}%</td>
+                    <td>${formatWeight(record.muscle, record.unit)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Load history from localStorage
+        function loadHistory() {
+            const savedHistory = localStorage.getItem('bodyCompHistory');
+            if (savedHistory) {
+                bodyCompHistory = JSON.parse(savedHistory);
+                
+                // If we have history, show metrics section
+                if (bodyCompHistory.length > 0) {
+                    document.getElementById('body-metrics').classList.remove('hidden');
+                    
+                    // Get latest measurement
+                    const latest = bodyCompHistory[bodyCompHistory.length - 1];
+                    
+                    // Use mock data structure to initialize UI with latest saved data
+                    const mockData = {
+                        weight: latest.weight || 0,
+                        unit: latest.unit || 'lb',
+                        bmi: latest.bmi || 0,
+                        body_fat_percentage: latest.bodyFat || 0,
+                        muscle_mass: latest.muscle || 0,
+                        bone_mass: latest.bone_mass || 0,
+                        body_water_percentage: latest.body_water_percentage || 0,
+                        protein_percentage: latest.protein_percentage || 0,
+                        basal_metabolism: latest.basal_metabolism || 0,
+                        visceral_fat: latest.visceral_fat || 0,
+                        metabolic_age: latest.metabolic_age || 0,
+                        ideal_weight: latest.ideal_weight || 0,
+                        life_expectancy: latest.life_expectancy || 0,
+                        fromMockData: true  // Add this line to show the demo indicator on load
+                    };
+                    
+                    // Update UI with saved data
+                    updateUI(mockData);
+                    
+                    // Update history table
+                    updateHistoryTable();
+                }
+            }
+        }
+        
+        // Update UI with measurement data
+        function updateUI(data) {
+            console.log("Raw data received:", JSON.stringify(data));
+            
+            // Check if this is mock data and show indicator if it is
+            if (data.fromMockData) {
+                document.getElementById('demo-indicator').classList.remove('hidden');
+                
+                // Hide raw weight indicator for mock data
+                if (document.getElementById('raw-weight-indicator')) {
+                    document.getElementById('raw-weight-indicator').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('demo-indicator').classList.add('hidden');
+                
+                // Show raw weight if available (for calibration)
+                if (data.rawWeight) {
+                    // Create or update raw weight indicator
+                    let rawWeightIndicator = document.getElementById('raw-weight-indicator');
+                    if (!rawWeightIndicator) {
+                        rawWeightIndicator = document.createElement('div');
+                        rawWeightIndicator.id = 'raw-weight-indicator';
+                        rawWeightIndicator.className = 'raw-weight-indicator';
+                        document.querySelector('.profile-section').appendChild(rawWeightIndicator);
+                    }
+                    
+                    rawWeightIndicator.textContent = `Raw data from scale: ${data.rawWeight} lb`;
+                    rawWeightIndicator.classList.remove('hidden');
+                }
+            }
+            
+            // Convert units for display if needed
+            let displayWeight = data.weight || 0;
+            let displayUnit = data.unit || 'lb';
+            
+            if (displayUnit === 'kg') {
+                displayWeight = kgToLb(displayWeight);
+                displayUnit = 'lb';
+            }
+            
+            // Update each metric with value or keep existing if not provided
+            document.getElementById('weight').textContent = displayWeight > 0 ? 
+                `${Math.round(displayWeight)} ${displayUnit}` : 
+                document.getElementById('weight').textContent;
+            
+            document.getElementById('bmi').textContent = data.bmi || 
+                (document.getElementById('bmi').textContent !== '0' ? 
+                document.getElementById('bmi').textContent : '0');
+            
+            document.getElementById('body-fat').textContent = data.body_fat_percentage ? 
+                `${data.body_fat_percentage}%` : 
+                document.getElementById('body-fat').textContent;
+            
+            // Convert muscle mass to lb if needed
+            if (data.muscle_mass) {
+                let muscleMass = data.muscle_mass;
+                if (data.unit === 'kg') {
+                    muscleMass = kgToLb(muscleMass);
+                }
+                document.getElementById('muscle-mass').textContent = `${Math.round(muscleMass)} lb`;
+            }
+            
+            // Convert bone mass to lb if needed
+            if (data.bone_mass) {
+                let boneMass = data.bone_mass;
+                if (data.unit === 'kg') {
+                    boneMass = kgToLb(boneMass);
+                }
+                document.getElementById('bone-mass').textContent = `${Math.round(boneMass)} lb`;
+            }
+            
+            if (data.body_water_percentage) {
+                document.getElementById('body-water').textContent = `${data.body_water_percentage}%`;
+            }
+            
+            if (data.protein_percentage) {
+                document.getElementById('protein').textContent = `${data.protein_percentage}%`;
+            }
+            
+            if (data.basal_metabolism) {
+                document.getElementById('basal-metabolism').textContent = `${data.basal_metabolism} kcal`;
+            }
+            
+            if (data.visceral_fat) {
+                document.getElementById('visceral-fat').textContent = data.visceral_fat;
+            }
+            
+            if (data.metabolic_age) {
+                document.getElementById('metabolic-age').textContent = data.metabolic_age;
+            }
+            
+            // Convert ideal weight to lb if needed
+            if (data.ideal_weight) {
+                let idealWeight = data.ideal_weight;
+                if (data.unit === 'kg') {
+                    idealWeight = kgToLb(idealWeight);
+                }
+                document.getElementById('ideal-weight').textContent = `${Math.round(idealWeight)} lb`;
+            }
+            
+            if (data.life_expectancy) {
+                document.getElementById('life-expectancy').textContent = data.life_expectancy;
+            }
+            
+            // Add the current reading to history if we have a weight
+            if (displayWeight > 0) {
+                addToHistory(data);
+            }
+        }
+        
+        // Event listener for scan button
+        document.getElementById('scan-button').addEventListener('click', function() {
+            // Check if we're in cooldown period
+            const now = Date.now();
+            if (now - lastMeasurementTime < COOLDOWN_TIME) {
+                const remainingSeconds = Math.ceil((COOLDOWN_TIME - (now - lastMeasurementTime)) / 1000);
+                showNotification(`Please wait ${remainingSeconds} seconds before taking another measurement.`, 'warning');
+                return;
+            }
+            
+            // Update last measurement time
+            lastMeasurementTime = now;
+            
+            // Temporarily disable button
+            const scanButton = document.getElementById('scan-button');
+            scanButton.disabled = true;
+            
+            // Show loading indicator
+            document.getElementById('loading').classList.remove('hidden');
+            
+            // Get user profile data - convert height from feet/inches to cm
+            const feet = parseInt(document.getElementById('feet').value);
+            const inches = parseInt(document.getElementById('inches').value);
+            const height = heightToCm(feet, inches);
+            
+            const age = document.getElementById('age').value;
+            const sex = document.getElementById('sex').value;
+            const country = document.getElementById('country').value;
+            
+            // Call API to get body composition
+            fetch(`/api/body_composition?height=${height}&age=${age}&sex=${sex}&country=${country}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Hide loading indicator
+                    document.getElementById('loading').classList.add('hidden');
+                    
+                    // Re-enable button
+                    scanButton.disabled = false;
+                    
+                    console.log("Received data:", data);
+                    
+                    if (data.status === 'success') {
+                        // Show body metrics section
+                        document.getElementById('body-metrics').classList.remove('hidden');
+                        
+                        // Update UI with measurement data
+                        updateUI(data.data);
+                        
+                        // Initialize charts
+                        initializeCharts(data.data);
+                        
+                        // Show appropriate notification based on data source
+                        if (data.data.fromMockData) {
+                            showNotification('Using demonstration data for body composition tracking.', 'warning');
+                        } else {
+                            showNotification('Body composition measurement successful!', 'success');
+                        }
+                    } else {
+                        // Show error notification
+                        showNotification('Error getting body composition data. Using last known values.', 'error');
+                    }
+                })
+                .catch(error => {
+                    // Hide loading indicator
+                    document.getElementById('loading').classList.add('hidden');
+                    
+                    // Re-enable button
+                    scanButton.disabled = false;
+                    
+                    // Show error notification
+                    showNotification('Error connecting to scale. Using demonstration data.', 'error');
+                    console.error('Error:', error);
+                });
+        });
+        
+        // Load history on page load
+        document.addEventListener('DOMContentLoaded', loadHistory);
+        
+        function addToHistory(data) {
+            // Create a record for the current measurement
+            const record = {
+                date: new Date().toLocaleString(),
+                weight: data.weight,
+                unit: data.unit || 'lb',
+                bmi: data.bmi,
+                bodyFat: data.body_fat_percentage,
+                muscle: data.muscle_mass,
+                bone_mass: data.bone_mass,
+                body_water_percentage: data.body_water_percentage,
+                protein_percentage: data.protein_percentage,
+                basal_metabolism: data.basal_metabolism,
+                visceral_fat: data.visceral_fat,
+                metabolic_age: data.metabolic_age,
+                ideal_weight: data.ideal_weight,
+                life_expectancy: data.life_expectancy
+            };
+            
+            // Add to history array
+            bodyCompHistory.push(record);
+            
+            // Keep only last 30 records
+            if (bodyCompHistory.length > 30) {
+                bodyCompHistory.shift();
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('bodyCompHistory', JSON.stringify(bodyCompHistory));
+            
+            // Update history table
+            updateHistoryTable();
+        }
+    </script>
+</body>
+</html>
