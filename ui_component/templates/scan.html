@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Food - Smart Nutrition Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+    /* Enhanced container styling */
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    }
+
+    /* Cursor enhancement */
+    .btn, a, input[type="submit"] {
+        cursor: pointer; 
+    }
+
+    .scan-instruction-panel {
+        cursor: default; 
+    }
+
+    /* Header styling */
+    header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 15px;
+    }
+
+    header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 500;
+        color: #2c3e50;
+    }
+
+    /* Button improvements */
+    .btn {
+        transition: all 0.3s ease;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .btn:active {
+        transform: translateY(0);
+    }
+
+    /* Integration buttons improvement */
+    .integration-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 25px 0;
+    }
+
+    .integration-buttons a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        background: linear-gradient(145deg, #6a5acd, #9370db);
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .integration-buttons a:hover {
+        background: linear-gradient(145deg, #5949bc, #8260ca);
+        transform: translateY(-2px);
+    }
+
+    .integration-buttons svg {
+        margin-bottom: 10px;
+        width: 30px;
+        height: 30px;
+    }
+
+    /* Enhanced loading indicator */
+    .loading-indicator {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.95);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    
+    .hidden {
+        display: none !important;
+    }
+    
+    .spinner {
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Enhanced scan status */
+    .scan-status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 500;
+        margin-top: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .scan-indicator {
+        width: 12px;
+        height: 12px;
+        background-color: #4caf50;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+    }
+
+    /* Food selection panel */
+    .food-selection-panel {
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+        border: 1px solid #e0e0e0;
+        display: none;
+    }
+
+    .food-selection-panel.active {
+        display: block;
+    }
+
+    .food-selection-panel h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .weight-adjustment-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .weight-adjustment-section button {
+        height: 40px;
+    }
+    
+    /* Responsive font size */
+    @media (max-width: 768px) {
+        body {
+            font-size: 16px;
+        }
+        
+        header h1 {
+            font-size: 24px;
+        }
+        
+        .scan-instruction-panel h3 {
+            font-size: 20px;
+        }
+    }
+
+    /* Custom notification system */
+    .custom-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        border-radius: 8px;
+        max-width: 350px;
+        z-index: 9999;
+        animation: slide-in 0.3s ease-out;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .success {
+        background-color: #dff8e5;
+        color: #2e7d32;
+        border-left: 4px solid #2e7d32;
+    }
+    
+    .error {
+        background-color: #fee8e7;
+        color: #d32f2f;
+        border-left: 4px solid #d32f2f;
+    }
+    
+    .notification-icon {
+        margin-right: 15px;
+    }
+    
+    .notification-message {
+        flex: 1;
+        font-weight: 500;
+    }
+    
+    .notification-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: inherit;
+        padding: 0 0 0 15px;
+        opacity: 0.7;
+    }
+    
+    .notification-close:hover {
+        opacity: 1;
+    }
+    
+    .fade-out {
+        animation: fade-out 0.5s ease-out forwards;
+    }
+    
+    @keyframes slide-in {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fade-out {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    /* Live camera view */
+    .camera-container {
+        position: relative;
+        width: 100%;
+        margin-top: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        display: none;
+    }
+
+    .camera-container.active {
+        display: block;
+    }
+
+    .camera-view {
+        width: 100%;
+        height: auto;
+        display: block;
+        background-color: #000;
+        border-radius: 8px;
+    }
+
+    .camera-controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .capture-btn {
+        background-color: #f44336;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+
+    .capture-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+
+    .capture-btn:active {
+        transform: scale(0.95);
+    }
+
+    .close-camera-btn {
+        background-color: #333;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .close-camera-btn:hover {
+        background-color: #555;
+    }
+
+    /* New: Action buttons container */
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .action-buttons button {
+        flex: 1;
+        padding: 12px;
+    }
+
+    /* New: Weighing option dialog */
+    .weighing-option-dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 450px;
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        z-index: 1010;
+        text-align: center;
+        display: none;
+    }
+
+    .weighing-option-dialog.active {
+        display: block;
+    }
+
+    .weighing-option-dialog h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 20px;
+    }
+
+    .weighing-option-dialog p {
+        margin-bottom: 20px;
+        color: #555;
+    }
+
+    .dialog-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .dialog-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1005;
+        display: none;
+    }
+
+    .dialog-overlay.active {
+        display: block;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="{{ url_for('index') }}" class="back-button">←</a>
+            <h1>Scan Food</h1>
+        </header>
+        
+        <div class="scan-options">
+            <div class="scan-instruction-panel">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h3"></path><path d="M4 17v3h3"></path><path d="M20 7V4h-3"></path><path d="M20 17v3h-3"></path><path d="M3 10h18"></path><path d="M3 14h18"></path></svg>
+                <h3>Scanning Instructions</h3>
+                <p>Point your barcode scanner at any product barcode and it will be automatically detected.</p>
+                <div class="scan-status">
+                    <div class="scan-indicator"></div>
+                    <span>Ready to scan</span>
+                </div>
+            </div>
+            
+            <div class="divider">OR</div>
+            
+            <div class="manual-entry">
+                <h2>Enter Product Name or Barcode</h2>
+                
+                <form action="{{ url_for('scan') }}" method="post">
+                    <input type="text" id="food-name-input" name="barcode_or_name" placeholder="Enter product name or barcode..." required>
+                    <button type="submit" class="btn">Submit</button>
+                </form>
+                
+                {% if request.args.get('error') %}
+                <div class="error-message">
+                    {{ request.args.get('error') }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Camera View Container -->
+        <div id="camera-container" class="camera-container">
+            <img id="camera-view" class="camera-view" src="" alt="Camera feed">
+            <div class="camera-controls">
+                <button id="capture-btn" class="capture-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>
+                </button>
+                <button id="close-camera-btn" class="close-camera-btn">Close Camera</button>
+            </div>
+        </div>
+        
+        <!-- New panel for selected food and weight adjustment -->
+        <div id="food-selection-panel" class="food-selection-panel">
+            <h3>Selected Food</h3>
+            <div id="selected-food-info">No food selected yet.</div>
+            <p style="margin-top: 10px; font-weight: bold; color: #555;">Captured Image:</p>
+            <img id="captured-image" src="" alt="Captured food" style="margin-top: 15px; max-width: 100%; border-radius: 12px; display: none;" />
+            
+            <div class="weight-adjustment-section">
+                <span id="current-weight">Use scale to measure weight</span>
+                <button id="apply-weight-btn" class="btn" disabled>Apply Weight</button>
+            </div>
+
+            <!-- New: Action Buttons -->
+            <div class="action-buttons">
+                <button id="view-details-btn" class="btn">View Nutrition Details</button>
+                <button id="measure-weight-btn" class="btn btn-primary">Measure Weight First</button>
+            </div>
+        </div>
+        
+        <div class="integration-buttons">
+            <a href="#" id="scale-btn" class="btn btn-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-4.97 0-9 4.03-9 9v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7c0-4.97-4.03-9-9-9z"></path><path d="M12 11l5 5M12 11l-5 5"></path><path d="M12 11m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path></svg>
+                <span>Use Scale</span>
+            </a>
+            
+            <a href="#" id="camera-btn" class="btn btn-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                <span>Use Camera</span>
+            </a>
+        </div>
+        
+        <div class="tips-section">
+            <h3>Tips</h3>
+            <ul>
+                <li>For packaged foods, scan the barcode for accurate data</li>
+                <li>For fresh foods like fruits and vegetables, enter the name directly</li>
+                <li>For restaurant meals, enter as much detail as possible (e.g., "Chicken Caesar Salad from Panera")</li>
+                <li>Use the scale to get precise nutrition based on actual portion size</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- New: Weighing Option Dialog -->
+    <div id="weighing-option-dialog" class="weighing-option-dialog">
+        <h3>Do you want to weigh this item?</h3>
+        <p>Weighing the food will provide more accurate nutrition information based on the actual portion size.</p>
+        <div class="dialog-buttons">
+            <button id="proceed-to-details-btn" class="btn">Skip Weighing</button>
+            <button id="proceed-to-weighing-btn" class="btn btn-primary">Weigh Item</button>
+        </div>
+    </div>
+    <div id="dialog-overlay" class="dialog-overlay"></div>
+    
+    <!-- Loading indicator -->
+    <div id="loading" class="loading-indicator hidden">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+    <script>
+        // Store current weight data
+        let currentWeight = null;
+        let currentUnit = "g";
+        let selectedFood = null;
+        let liveViewInterval = null;
+        let refreshingCamera = false;
+        let lastScannedBarcode = null;
+        let lastScannedRedirectUrl = null;
+        let useWeightAdjustment = false;
+        
+        // Check for food selection in URL parameters
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const foodName = urlParams.get('food');
+            
+            if (foodName) {
+                document.getElementById('food-name-input').value = foodName;
+                document.getElementById('selected-food-info').innerText = foodName;
+                document.getElementById('food-selection-panel').classList.add('active');
+                selectedFood = foodName;
+            }
+        });
+        
+        // Custom notification function
+        function showNotification(message, isSuccess = true) {
+            // Remove any existing notification
+            const existingNotification = document.querySelector('.custom-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `custom-notification ${isSuccess ? 'success' : 'error'}`;
+            
+            notification.innerHTML = `
+                <div class="notification-icon">
+                    ${isSuccess ? 
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>' : 
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>'
+                    }
+                </div>
+                <div class="notification-message">${message}</div>
+                <button class="notification-close">×</button>
+            `;
+            
+            // Add to document
+            document.body.appendChild(notification);
+            
+            // Add event listener for close button
+            notification.querySelector('.notification-close').addEventListener('click', function() {
+                notification.remove();
+            });
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    notification.classList.add('fade-out');
+                    setTimeout(() => notification.remove(), 500);
+                }
+            }, 5000);
+        }
+    
+        // Show weighing option dialog
+        function showWeighingOptionDialog(foodName, redirectUrl) {
+            document.getElementById('weighing-option-dialog').classList.add('active');
+            document.getElementById('dialog-overlay').classList.add('active');
+            
+            // Store food information
+            selectedFood = foodName;
+            lastScannedRedirectUrl = redirectUrl;
+            
+            // Update food info display
+            document.getElementById('selected-food-info').innerText = foodName;
+            document.getElementById('food-selection-panel').classList.add('active');
+        }
+        
+        // Hide weighing option dialog
+        function hideWeighingOptionDialog() {
+            document.getElementById('weighing-option-dialog').classList.remove('active');
+            document.getElementById('dialog-overlay').classList.remove('active');
+        }
+    
+        document.querySelector('form').addEventListener('submit', function() {
+            document.getElementById('loading').classList.remove('hidden');
+        });
+        
+        // Apply weight button handler
+        document.getElementById('apply-weight-btn').addEventListener('click', function() {
+            if (selectedFood && currentWeight) {
+                window.location.href = `/apply_weight?name=${encodeURIComponent(selectedFood)}&weight=${currentWeight}&unit=${currentUnit}`;
+            } else {
+                showNotification('Please enter a food name and use the scale to measure weight', false);
+            }
+        });
+        
+        // View nutrition details directly
+        document.getElementById('view-details-btn').addEventListener('click', function() {
+            if (lastScannedRedirectUrl) {
+                window.location.href = lastScannedRedirectUrl;
+            } else if (selectedFood) {
+                // Submit the form manually for the entered food name
+                document.querySelector('form').submit();
+            } else {
+                showNotification('Please select a food first', false);
+            }
+        });
+        
+        // Measure weight first
+        document.getElementById('measure-weight-btn').addEventListener('click', function() {
+            useWeightAdjustment = true;
+            // Trigger the scale
+            document.getElementById('scale-btn').click();
+        });
+        
+        // Dialog buttons
+        document.getElementById('proceed-to-details-btn').addEventListener('click', function() {
+            hideWeighingOptionDialog();
+            if (lastScannedRedirectUrl) {
+                window.location.href = lastScannedRedirectUrl;
+            }
+        });
+        
+        document.getElementById('proceed-to-weighing-btn').addEventListener('click', function() {
+            hideWeighingOptionDialog();
+            useWeightAdjustment = true;
+            document.getElementById('scale-btn').click();
+        });
+        
+        // Integration with scale component - using custom notifications
+        document.getElementById('scale-btn').addEventListener('click', function() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('loading').querySelector('p').textContent = 'Connecting to scale...';
+            
+            // Get the current food name if not already set
+            if (!selectedFood) {
+                selectedFood = document.getElementById('food-name-input').value;
+            }
+            
+            fetch('/api/trigger_scale')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').classList.add('hidden');
+                    if (data.status === 'success') {
+                        // Store the weight data
+                        currentWeight = data.weight;
+                        currentUnit = data.unit;
+                        
+                        // Show the food selection panel
+                        document.getElementById('food-selection-panel').classList.add('active');
+                        
+                        // Update the weight display
+                        document.getElementById('current-weight').innerText = `Measured weight: ${data.weight}${data.unit}`;
+                        
+                        // Enable the apply button if food is selected
+                        if (selectedFood) {
+                            document.getElementById('selected-food-info').innerText = selectedFood;
+                            document.getElementById('apply-weight-btn').disabled = false;
+                            
+                            // Automatically redirect if using weight adjustment flow
+                            if (useWeightAdjustment) {
+                                window.location.href = `/apply_weight?name=${encodeURIComponent(selectedFood)}&weight=${data.weight}&unit=${data.unit}`;
+                            }
+                        }
+                        
+                        showNotification(`Weight detected: ${data.weight}${data.unit}`, true);
+                    } else {
+                        showNotification('Could not connect to scale. Please try again.', false);
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loading').classList.add('hidden');
+                    showNotification('Error connecting to scale', false);
+                });
+        });
+        
+        // Camera button - start live view
+        document.getElementById('camera-btn').addEventListener('click', function() {
+            // Show camera container
+            document.getElementById('camera-container').classList.add('active');
+            
+            // Show loading indicator
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('loading').querySelector('p').textContent = 'Starting camera...';
+            
+            // Start periodic updates
+            if (!liveViewInterval) {
+                // Update immediately
+                updateLiveView();
+                
+                // Then start regular updates (every 200ms)
+                liveViewInterval = setInterval(updateLiveView, 200);
+            }
+            
+            // Hide loading after a short delay
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+            }, 1000);
+        });
+        
+        // Function to update the live view
+        function updateLiveView() {
+            if (refreshingCamera) return;
+            refreshingCamera = true;
+            
+            fetch('/api/update_live_view')
+                .then(response => response.json())
+                .then(data => {
+                    refreshingCamera = false;
+                    if (data.status === 'success') {
+                        const imgEl = document.getElementById('camera-view');
+                        imgEl.src = data.image_path;
+                    }
+                })
+                .catch(error => {
+                    refreshingCamera = false;
+                    console.error('Error updating live view:', error);
+                });
+        }
+        
+        // Close camera button - stop periodic updates
+        document.getElementById('close-camera-btn').addEventListener('click', function() {
+            document.getElementById('camera-container').classList.remove('active');
+            
+            // Stop periodic updates
+            if (liveViewInterval) {
+                clearInterval(liveViewInterval);
+                liveViewInterval = null;
+            }
+        });
+        
+        // Capture button - capture image
+        document.getElementById('capture-btn').addEventListener('click', function() {
+            // Stop the live view updates
+            if (liveViewInterval) {
+                clearInterval(liveViewInterval);
+                liveViewInterval = null;
+            }
+            
+            // Show loading indicator
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('loading').querySelector('p').textContent = 'Capturing image...';
+            
+            // Call the server to capture and process the image
+            fetch('/api/trigger_camera')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').classList.add('hidden');
+                    
+                    // Hide camera container
+                    document.getElementById('camera-container').classList.remove('active');
+                    
+                    // Always show image if returned
+                    const imgEl = document.getElementById('captured-image');
+                    if (data.image_url && imgEl) {
+                        imgEl.src = data.image_url;
+                        imgEl.style.display = 'block';
+                    }
+                    
+                    if (data.status === 'success') {
+                        document.getElementById('food-name-input').value = data.food_name;
+                        selectedFood = data.food_name;
+                        showNotification(`Detected: ${data.food_name}`, true);
+                        
+                        // Show the weighing option dialog instead of redirecting automatically
+                        showWeighingOptionDialog(data.food_name, data.redirect_url);
+                    } else {
+                        document.getElementById('selected-food-info').innerText = "No food recognized.";
+                        document.getElementById('food-selection-panel').classList.add('active');
+                        showNotification(data.message || 'Could not recognize food.', false);
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loading').classList.add('hidden');
+                    showNotification('Error connecting to camera', false);
+                });
+        });
+        
+        // Update foodSelection when the input changes
+        document.getElementById('food-name-input').addEventListener('input', function(e) {
+            selectedFood = e.target.value;
+            if (selectedFood) {
+                document.getElementById('selected-food-info').innerText = selectedFood;
+                document.getElementById('food-selection-panel').classList.add('active');
+                
+                // Enable apply button if we have weight data
+                if (currentWeight !== null) {
+                    document.getElementById('apply-weight-btn').disabled = false;
+                }
+            } else {
+                document.getElementById('food-selection-panel').classList.remove('active');
+            }
+        });
+    
+        // Barcode scanner handler (intercept barcode scanning)
+        // We'll simulate a barcode scan by listening for rapid key input followed by Enter
+        let barcodeBuffer = "";
+        let lastKeyTime = 0;
+        let keyTimeThreshold = 50; // Threshold in ms between keystrokes to consider it from a scanner
+        
+        document.addEventListener('keydown', function(e) {
+            const currentTime = new Date().getTime();
+            
+            // If this is an Enter key and we have a barcode buffer
+            if (e.key === 'Enter' && barcodeBuffer.length > 0) {
+                if (barcodeBuffer.length >= 8 && /^\d+$/.test(barcodeBuffer)) {
+                    // This looks like a barcode (all digits, at least 8 chars)
+                    e.preventDefault();
+                    handleBarcodeScanned(barcodeBuffer);
+                    barcodeBuffer = ""; 
+                }
+                return;
+            }
+            
+            // Check if keys are coming in fast enough to be from a scanner
+            if (currentTime - lastKeyTime < keyTimeThreshold) {
+                // Likely from a scanner, add to buffer
+                barcodeBuffer += e.key;
+            } else {
+                // Too slow, probably manual typing - clear buffer
+                barcodeBuffer = e.key;
+            }
+            
+            lastKeyTime = currentTime;
+        });
+        
+        // Handle a scanned barcode
+        function handleBarcodeScanned(barcode) {
+            // Show loading indicator
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('loading').querySelector('p').textContent = 'Processing barcode...';
+            
+            console.log("Barcode scanned:", barcode);
+            // Store the barcode for later use
+            lastScannedBarcode = barcode;
+            
+            // Submit the barcode
+            fetch('/scan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `barcode_or_name=${barcode}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').classList.add('hidden');
+                
+                if (data.status === 'success') {
+                    // Store the redirect URL but don't navigate yet
+                    lastScannedRedirectUrl = data.redirect_url;
+                    
+                    // Show the weighing option dialog
+                    showWeighingOptionDialog(`Product with barcode: ${barcode}`, data.redirect_url);
+                    
+                    showNotification(`Detected: ${data.food_name}`, true);
+                } else {
+                    showNotification('Error processing barcode', false);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loading').classList.add('hidden');
+                showNotification('Error processing barcode', false);
+            });
+        }
+    </script>
+    </body>
+    </html>
+    

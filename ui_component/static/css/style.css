@@ -1,0 +1,895 @@
+/* Main Styles for Smart Nutrition Tracker */
+:root {
+    --primary-color: #4CAF50;
+    --primary-dark: #388E3C;
+    --secondary-color: #2196F3;
+    --accent-color: #FF9800;
+    --danger-color: #F44336;
+    --text-color: #333;
+    --text-light: #757575;
+    --background-color: #f5f5f5;
+    --card-background: #fff;
+    --border-color: #e0e0e0;
+    --shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    height: 100%;
+    overflow-x: hidden; 
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden; 
+}
+
+.app-container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    flex: 1;
+}
+
+.main-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow);
+}
+
+.header-content {
+    text-align: center;
+}
+
+.header-content h1 {
+    font-size: 28px;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.tagline {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+.back-button {
+    font-size: 24px;
+    text-decoration: none;
+    margin-right: 15px;
+    color: var(--text-color);
+}
+
+/* Button styles */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-success {
+    background-color: #4CAF50;
+}
+
+.btn-success:hover {
+    background-color: #388E3C;
+}
+
+.btn-info {
+    background-color: var(--secondary-color);
+}
+
+.btn-info:hover {
+    background-color: #1976D2;
+}
+
+.btn-secondary {
+    background-color: #7E57C2;
+}
+
+.btn-secondary:hover {
+    background-color: #673AB7;
+}
+
+.btn-sm {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.btn-lg {
+    padding: 12px 24px;
+    font-size: 18px;
+}
+
+/* Dashboard styles */
+.dashboard {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+}
+
+.main-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.card-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--card-background);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    color: var(--text-color);
+    text-decoration: none;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.card-button svg {
+    margin-bottom: 15px;
+    color: var(--primary-color);
+}
+
+.card-button span {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* Dashboard sections */
+.dashboard-section {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: var(--shadow);
+}
+
+.dashboard-section h2 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.item-card {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.item-header {
+    margin-bottom: 10px;
+}
+
+.item-header h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.item-source {
+    font-size: 12px;
+    color: var(--text-light);
+    padding: 2px 6px;
+    background-color: #f1f1f1;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.item-details {
+    flex: 1;
+    margin-bottom: 15px;
+}
+
+.item-calories {
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.item-serving {
+    color: var(--text-light);
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.item-macros {
+    display: flex;
+    gap: 10px;
+}
+
+.item-macros span {
+    background-color: #f1f1f1;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Dashboard charts section */
+.dashboard-charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.chart-container {
+    position: relative;
+    height: 250px;
+}
+
+.nutrition-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.summary-item {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+}
+
+.summary-label {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 5px;
+}
+
+.summary-value {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.calories-value {
+    color: var(--primary-color);
+}
+
+
+.welcome-card {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.welcome-content {
+    padding: 40px;
+    text-align: center;
+}
+
+.welcome-content h2 {
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+.welcome-content p {
+    color: var(--text-light);
+    margin-bottom: 30px;
+}
+
+.welcome-features {
+    display: flex;
+    justify-content: space-around;
+    margin: 30px 0;
+}
+
+.feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 30%;
+}
+
+.feature svg {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.feature span {
+    font-size: 14px;
+}
+
+/* Footer */
+.main-footer {
+    margin-top: 40px;
+    text-align: center;
+    padding: 20px;
+    color: var(--text-light);
+    font-size: 14px;
+    background-color: var(--card-background);
+    box-shadow: 0 -1px 5px rgba(0,0,0,0.05);
+}
+
+/* Scan page styles */
+.scan-options {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+
+.divider {
+    text-align: center;
+    margin: 20px 0;
+    font-weight: 500;
+    color: var(--text-light);
+    position: relative;
+}
+
+.divider::before, .divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background-color: var(--border-color);
+}
+
+.divider::before {
+    left: 0;
+}
+
+.divider::after {
+    right: 0;
+}
+
+.manual-entry {
+    margin-top: 20px;
+}
+
+.manual-entry h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.manual-entry form {
+    display: flex;
+    gap: 10px;
+}
+
+.manual-entry input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.error-message {
+    color: var(--danger-color);
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #FFEBEE;
+    border-radius: 4px;
+}
+
+.integration-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.tips-section {
+    background-color: #E8F5E9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.tips-section h3 {
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.tips-section ul {
+    padding-left: 20px;
+}
+
+.tips-section li {
+    margin-bottom: 5px;
+}
+
+/* Nutrition details styles */
+.nutrition-card {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: var(--shadow);
+}
+
+.product-header {
+    margin-bottom: 20px;
+}
+
+.product-header h2 {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.source, .serving, .timestamp {
+    color: var(--text-light);
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.nutrition-visual {
+    height: 250px;
+    margin-bottom: 30px;
+}
+
+.nutrition-facts {
+    margin-bottom: 30px;
+}
+
+.nutrition-main {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.fact-calories .fact-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.fact {
+    margin-bottom: 15px;
+}
+
+.fact-label {
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.fact-value {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.fact-bar {
+    height: 8px;
+    background-color: var(--primary-color);
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+.protein-bar {
+    background-color: #FF6384;
+}
+
+.carbs-bar {
+    background-color: #36A2EB;
+}
+
+.fat-bar {
+    background-color: #FFCE56;
+}
+
+.macro-nutrients {
+    margin-bottom: 20px;
+}
+
+.additional-nutrients {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.weight-adjustment {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.weight-adjustment h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.weight-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.weight-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.weight-input select {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#adjusted-values {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+}
+
+.adjusted-nutrition {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+/* Loading indicator */
+.loading-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* History page styles */
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    border-left: 4px solid var(--primary-color);
+}
+
+.item-details {
+    flex: 1;
+}
+
+.item-meta {
+    font-size: 14px;
+    color: var(--text-light);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.macro {
+    background-color: #f1f1f1;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Daily summary page styles */
+.totals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.total-item {
+    text-align: center;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.total-label {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 5px;
+}
+
+.total-value {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.charts-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.chart-card h3 {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.today-items h3 {
+    margin-bottom: 15px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .app-container {
+        padding: 15px;
+    }
+    
+    .main-buttons,
+    .integration-buttons,
+    .dashboard-charts,
+    .charts-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .items-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .additional-nutrients {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .manual-entry form {
+        flex-direction: column;
+    }
+    
+    .manual-entry input {
+        margin-bottom: 10px;
+    }
+    
+    .history-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .item-macros {
+        margin: 10px 0;
+    }
+    
+    .actions {
+        flex-direction: column;
+    }
+    
+    .welcome-features {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .feature {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+}
+
+@supports (-webkit-overflow-scrolling: touch) {
+    body {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .items-grid, 
+    .nutrition-summary, 
+    .chart-container {
+        transform: translateZ(0);
+    }
+}
+.is-scrolling * {
+    pointer-events: none !important;
+}
+
+/* Improve rendering performance */
+.dashboard, .nutrition-card, .scan-options, .items-grid, .charts-container {
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+/* Reduce animation complexity on mobile */
+@media (max-width: 768px) {
+    .card-button:hover {
+        transform: none;
+    }
+    
+    .btn:hover {
+        transform: none;
+    }
+    
+    .chart-container {
+        height: 200px;
+    }
+}
+.today-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#macro-chart-container, #calorie-chart-container {
+    height: 200px;
+    width: 100%;
+    position: relative;
+}
+
+.dashboard-charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.chart-container {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.chart-container h3 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .dashboard-charts {
+        grid-template-columns: 1fr;
+    }
+}
+/* Barcode scanning instruction panel */
+.scan-instruction-panel {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border: 1px dashed var(--border-color);
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.scan-instruction-panel svg {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.scan-instruction-panel h3 {
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.scan-instruction-panel p {
+    margin-bottom: 15px;
+    color: var(--text-light);
+}
+
+.scan-status {
+    background-color: #E8F5E9;
+    color: var(--primary-color);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    body {
+        font-size: 16px;
+    }
+    
+    header h1 {
+        font-size: 24px;
+    }
+    
+    .scan-instruction-panel h3 {
+        font-size: 20px;
+    }
+}
+
+.btn, a, input[type="submit"] {
+    cursor: pointer;
+}
+
+.scan-instruction-panel {
+    cursor: default; 
+}
